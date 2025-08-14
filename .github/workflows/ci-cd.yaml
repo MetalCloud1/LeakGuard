@@ -1,0 +1,105 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: us-west-2
+
+    steps:
+      # 1️⃣ Checkout del repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2️⃣ Configurar AWS
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 3️⃣ Configurar Python
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      # 4️⃣ Instalar dependencias
+      - name: Install dependencies
+        run: |
+          pip install -r auth-service/requirements.txt
+          pip install -r users-api/requirements.txt
+          pip install flake8 pytest mypy
+
+      # 5️⃣ Validación de código
+      - name: Lint auth-service
+        run: flake8 auth-service/src
+      - name: Lint users-api
+        run: flake8 users-api/src
+      - name: Run tests auth-service
+        run: pytest auth-service/tests
+      - name: Run tests users-api
+        run: pytest users-api/tests
+
+      # 6️⃣ Build Docker images
+      - name: Build auth-service image
+        run: docker build -t gilbr/auth-service:latest auth-service/
+      - name: Build users-api image
+        run: docker build -t gilbr/users-api:latest users-api/
+
+      # 7️⃣ Login a Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # 8️⃣ Push Docker images
+      - name: Push auth-service image
+        run: docker push gilbr/auth-service:latest
+      - name: Push users-api image
+        run: docker push gilbr/users-api:latest
+
+      # 9️⃣ Definir namespace según rama
+      - name: Set namespace
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "NAMESPACE=auth-prod" >> $GITHUB_ENV
+          else
+            echo "NAMESPACE=auth-dev" >> $GITHUB_ENV
+
+      # 🔟 Reemplazar placeholders y deploy auth-service
+      - name: Deploy auth-service
+        run: |
+          sed "s|<IAM_ROLE_ARN_PLACEHOLDER>|${{ secrets.IAM_ROLE_ARN }}|g" auth-service/infra/k8s/templates/auth-sa-template.yaml \
+            > auth-service/infra/k8s/${{ env.NAMESPACE }}/auth-sa.yaml
+
+          sed "s|<AWS_SECRET_NAME_PLACEHOLDER>|${{ secrets.AWS_SECRET_NAME }}|g" auth-service/infra/k8s/templates/auth-deployment-template.yaml \
+            > auth-service/infra/k8s/${{ env.NAMESPACE }}/auth-deployment.yaml
+
+          kubectl apply -f auth-service/infra/k8s/${{ env.NAMESPACE }}/
+
+      # 1️⃣1️⃣ Reemplazar placeholders y deploy users-api
+      - name: Deploy users-api
+        run: |
+          sed "s|<POSTGRES_USER>|${{ secrets.POSTGRES_USER }}|g" users-api/infra/k8s/templates/users-api-template.yaml \
+            | sed "s|<POSTGRES_PASSWORD>|${{ secrets.POSTGRES_PASSWORD }}|g" \
+            | sed "s|<POSTGRES_HOST>|${{ secrets.POSTGRES_HOST }}|g" \
+            | sed "s|<POSTGRES_DB>|${{ secrets.POSTGRES_DB }}|g" \
+            > users-api/infra/k8s/${{ env.NAMESPACE }}/users-api.yaml
+
+          kubectl apply -f users-api/infra/k8s/${{ env.NAMESPACE }}/
+
+      # 1️⃣2️⃣ Deploy stack de monitoreo (Grafana, Prometheus, Loki)
+      - name: Deploy monitoring stack
+        run: |
+          for service in grafana prometheus loki; do
+            kubectl apply -f infra/k8s/monitoring/$service/
+          done

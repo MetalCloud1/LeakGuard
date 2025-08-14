@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+python-jose
+passlib[bcrypt]
+boto3
+python-multipart
+sqlalchemy
+asyncpg
+alembic
+slowapi
+pydantic[email]
+loguru
+psycopg2
+prometheus_fastapi_instrumentator

@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Secrets locales
+*.env
+*.key
+*.pem
+*.crt
+secrets/
+
+# Logs y temporales
+*.log
+tmp/
+
+# K8s YAML generados en prod
+**/infra/k8s/prod/
+**/infra/iam/iam-policies
