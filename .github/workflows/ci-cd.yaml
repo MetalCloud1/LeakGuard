@@ -79,24 +79,16 @@ jobs:
       #Replace placeholders and deploy auth-service
       - name: Deploy auth-service
         run: |
-          sed "s|<IAM_ROLE_ARN_PLACEHOLDER>|${{ secrets.IAM_ROLE_ARN }}|g" auth-service/infra/k8s/templates/auth-sa-template.yaml \
-            > auth-service/infra/k8s/${{ env.NAMESPACE }}/auth-sa.yaml
+          mkdir -p auth-service/infra/k8s/${{ env.NAMESPACE }}
+          sed "s|<IAM_ROLE_ARN_PLACEHOLDER>|${{ secrets.IAM_ROLE_ARN }}|g" \
+           auth-service/infra/k8s/templates/auth-sa-template.yaml \
+           > auth-service/infra/k8s/${{ env.NAMESPACE }}/auth-sa.yaml
 
-          sed "s|<AWS_SECRET_NAME_PLACEHOLDER>|${{ secrets.AWS_SECRET_NAME }}|g" auth-service/infra/k8s/templates/auth-deployment-template.yaml \
+           sed "s|<AWS_SECRET_NAME_PLACEHOLDER>|${{ secrets.AWS_SECRET_NAME }}|g" \
+            auth-service/infra/k8s/templates/auth-deployment-template.yaml \
             > auth-service/infra/k8s/${{ env.NAMESPACE }}/auth-deployment.yaml
 
           kubectl apply -f auth-service/infra/k8s/${{ env.NAMESPACE }}/
-
-      #Replace placeholders and deploy users-api
-      - name: Deploy users-api
-        run: |
-          sed "s|<POSTGRES_USER>|${{ secrets.POSTGRES_USER }}|g" users-api/infra/k8s/templates/users-api-template.yaml \
-            | sed "s|<POSTGRES_PASSWORD>|${{ secrets.POSTGRES_PASSWORD }}|g" \
-            | sed "s|<POSTGRES_HOST>|${{ secrets.POSTGRES_HOST }}|g" \
-            | sed "s|<POSTGRES_DB>|${{ secrets.POSTGRES_DB }}|g" \
-            > users-api/infra/k8s/${{ env.NAMESPACE }}/users-api.yaml
-
-          kubectl apply -f users-api/infra/k8s/${{ env.NAMESPACE }}/
 
       #Deploy monitoring stack (Grafana, Prometheus, Loki)/// 
       - name: Deploy monitoring stack
