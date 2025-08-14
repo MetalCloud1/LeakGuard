@@ -31,8 +31,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 async def get_user_by_username(db, username: str) -> Optional[User]:
-    result = await db.execute(
-        select(User).where(User.username == username))
+    result = await db.execute(select(User).where(User.username == username))
     return result.scalars().first()
 
 
@@ -49,7 +48,8 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     SECRET_KEY = get_secret_key()
     to_encode = data.copy()
     expire = datetime.utcnow() + (
-        expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+        expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -61,7 +61,6 @@ def decode_token_return_username(token: str) -> Optional[str]:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         return username
-    
+
     except JWTError:
         return None
-    
