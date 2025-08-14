@@ -91,8 +91,8 @@ jobs:
         #  kubectl apply -f auth-service/infra/k8s/${{ env.NAMESPACE }}/ --validate=false
 
       #Deploy monitoring stack (Grafana, Prometheus, Loki)/// 
-      - name: Deploy monitoring stack
-        run: |
-          for service in grafana prometheus loki; do
-            kubectl apply -f infra/k8s/monitoring/$service/
-          done
+      #- name: Deploy monitoring stack
+      #  run: |
+      #   for service in grafana prometheus loki; do
+      #     kubectl apply -f infra/k8s/monitoring/$service/
+      #   done
