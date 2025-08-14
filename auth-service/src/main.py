@@ -50,10 +50,14 @@ async def get_db():
 
 @app.post("/register", status_code=201)
 async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(User).where(User.username == user.username))
+    result = await db.execute(
+        select(User).where(User.username == user.username)
+    )
     user_db = result.scalars().first()
     if user_db:
-        raise HTTPException(status_code=400, detail="Username already registered")
+        raise HTTPException(
+            status_code=400, detail="Username already registered"
+        )
 
     result = await db.execute(select(User).where(User.email == user.email))
     email_db = result.scalars().first()
@@ -97,7 +101,8 @@ async def login(
     user = await authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
+            status_code=
+            status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
         )
     access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
@@ -110,7 +115,8 @@ async def read_users_me(
     username = decode_token_return_username(token)
     if not username:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token"
+            status_code=
+            status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token"
         )
     result = await db.execute(select(User).where(User.username == username))
     user = result.scalars().first()
