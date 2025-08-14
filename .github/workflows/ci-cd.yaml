@@ -81,12 +81,12 @@ jobs:
         run: |
           mkdir -p auth-service/infra/k8s/${{ env.NAMESPACE }}
           sed "s|<IAM_ROLE_ARN_PLACEHOLDER>|${{ secrets.IAM_ROLE_ARN }}|g" \
-           auth-service/infra/k8s/templates/auth-sa-template.yaml \
-           > auth-service/infra/k8s/${{ env.NAMESPACE }}/auth-sa.yaml
+           auth-service/infra/k8s/templates/serviceAccount-prod-template.yaml \
+           > auth-service/infra/k8s/${{ env.NAMESPACE }}/serviceAccount-prod.yaml
 
            sed "s|<AWS_SECRET_NAME_PLACEHOLDER>|${{ secrets.AWS_SECRET_NAME }}|g" \
-            auth-service/infra/k8s/templates/auth-deployment-template.yaml \
-            > auth-service/infra/k8s/${{ env.NAMESPACE }}/auth-deployment.yaml
+            auth-service/infra/k8s/templates/deployment-prod-template.yaml \
+            > auth-service/infra/k8s/${{ env.NAMESPACE }}/deployment-prod.yaml
 
           kubectl apply -f auth-service/infra/k8s/${{ env.NAMESPACE }}/
 
