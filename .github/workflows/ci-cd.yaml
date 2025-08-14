@@ -88,7 +88,7 @@ jobs:
             auth-service/infra/k8s/templates/deployment-prod-template.yaml \
             > auth-service/infra/k8s/${{ env.NAMESPACE }}/deployment-prod.yaml
 
-          kubectl apply -f auth-service/infra/k8s/${{ env.NAMESPACE }}/ --validate=false
+        #  kubectl apply -f auth-service/infra/k8s/${{ env.NAMESPACE }}/ --validate=false
 
       #Deploy monitoring stack (Grafana, Prometheus, Loki)/// 
       - name: Deploy monitoring stack
