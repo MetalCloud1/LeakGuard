@@ -25,7 +25,7 @@ spec:
             - name: AWS_REGION
               value: us-west-2
             - name: AWS_SECRET_NAME
-              value: auth-service/dev
+              value: <AWS_SECRET_NAME_PLACEHOLDER>
           readinessProbe:
             httpGet:
               path: /health
