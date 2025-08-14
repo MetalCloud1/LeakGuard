@@ -101,8 +101,8 @@ async def login(
     user = await authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
-            status_code=
-            status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials"
         )
     access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
@@ -115,8 +115,8 @@ async def read_users_me(
     username = decode_token_return_username(token)
     if not username:
         raise HTTPException(
-            status_code=
-            status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token"
         )
     result = await db.execute(select(User).where(User.username == username))
     user = result.scalars().first()
