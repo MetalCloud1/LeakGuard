@@ -12,3 +12,5 @@ pydantic[email]
 loguru
 psycopg2
 prometheus_fastapi_instrumentator
+httpx
+pytest
