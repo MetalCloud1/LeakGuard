@@ -74,6 +74,7 @@ jobs:
             echo "NAMESPACE=auth-prod" >> $GITHUB_ENV
           else
             echo "NAMESPACE=auth-dev" >> $GITHUB_ENV
+          fi
 
       #Replace placeholders and deploy auth-service
       - name: Deploy auth-service
