@@ -84,7 +84,7 @@ jobs:
            auth-service/infra/k8s/templates/serviceAccount-prod-template.yaml \
            > auth-service/infra/k8s/${{ env.NAMESPACE }}/serviceAccount-prod.yaml
 
-           sed "s|<AWS_SECRET_NAME_PLACEHOLDER>|${{ secrets.AWS_SECRET_NAME }}|g" \
+          sed "s|<AWS_SECRET_NAME_PLACEHOLDER>|${{ secrets.AWS_SECRET_NAME }}|g" \
             auth-service/infra/k8s/templates/deployment-prod-template.yaml \
             > auth-service/infra/k8s/${{ env.NAMESPACE }}/deployment-prod.yaml
 
