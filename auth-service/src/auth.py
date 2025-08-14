@@ -6,11 +6,11 @@ from src.utils import verify_password
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from sqlalchemy.future import select
-from src.database import SessionLocal
 from typing import Optional
 
+
 def get_secret_key():
-    environment = os.getenv("ENVIRONMENT", "development")
+    environment = os.getenv("ENVIRONMENT","development")
     
     if environment == "production":
         secret_name = os.getenv("AWS_SECRET_NAME", "auth-service/prod")
@@ -26,9 +26,12 @@ def get_secret_key():
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+
 async def get_user_by_username(db, username: str) -> Optional[User]:
-    result = await db.execute(select(User).where(User.username == username))
+    result = await db.execute(
+        select(User).where(User.username == username))
     return result.scalars().first()
+
 
 async def authenticate_user(db, username: str, password: str):
     user = await get_user_by_username(db, username)
@@ -38,13 +41,16 @@ async def authenticate_user(db, username: str, password: str):
         return None
     return user
 
+
 def create_access_token(data: dict, expires_delta: timedelta = None):
     SECRET_KEY = get_secret_key()
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    expire = datetime.utcnow() + (
+        expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
 
 def decode_token_return_username(token: str) -> Optional[str]:
     SECRET_KEY = get_secret_key()
@@ -54,4 +60,4 @@ def decode_token_return_username(token: str) -> Optional[str]:
         return username
     except JWTError:
         return None
-
+    

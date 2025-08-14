@@ -20,6 +20,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 app = FastAPI()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     request_id = str(uuid4())
@@ -37,23 +38,30 @@ async def log_requests(request: Request, call_next):
     response.headers["X-Request-ID"] = request_id
     return response
 
+
 async def get_db():
     async with SessionLocal() as session:
         yield session
 
+
 @app.post("/register", status_code=201)
-async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
+async def register(
+    user: UserCreate, db: AsyncSession = Depends(get_db)):
     
-    result = await db.execute(select(User).where(User.username == user.username))
+    result = await db.execute(
+        select(User).where(User.username == user.username))
     user_db = result.scalars().first()
     if user_db:
-        raise HTTPException(status_code=400, detail="Username already registered")
-    
-    
-    result = await db.execute(select(User).where(User.email == user.email))
+        raise HTTPException(status_code=400,
+        detail="Username already registered")
+
+
+    result = await db.execute(
+        select(User).where(User.email == user.email))
     email_db = result.scalars().first()
     if email_db:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=400, 
+        detail="Email already registered")
 
     hashed_password = get_password_hash(user.password)
     new_user = User(
@@ -64,39 +72,53 @@ async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
     )
     db.add(new_user)
     await db.commit()
-    await db.refresh(new_user)  
+    await db.refresh(new_user)
 
     return {"msg": "User registered successfully"}
-#
+
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_middleware(SlowAPIMiddleware)
 
+
 @app.exception_handler(RateLimitExceeded)
-async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+async def rate_limit_handler(
+    request: Request, exc: RateLimitExceeded):
      return JSONResponse(
         status_code=429,
         content={"detail": "Too many requests"},
     )
+
+
 @limiter.limit("5/minute")
 @app.post("/token")
-async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
-    user = await authenticate_user(db, form_data.username, form_data.password)
+async def login(request: Request, form_data:
+    OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession= Depends(get_db)):
+    user = await authenticate_user(
+        db, form_data.username, form_data.password)
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+        raise HTTPException(status_code=
+        status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
-#
+
+
 @app.get("/users/me", response_model=UserOut)
-async def read_users_me(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
+async def read_users_me(token: str= 
+    Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
     username = decode_token_return_username(token)
     if not username:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
-    result = await db.execute(select(User).where(User.username == username))
+        raise HTTPException(status_code=
+        status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
+    result = await db.execute(
+        select(User).where(User.username == username))
     user = result.scalars().first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(status_code=
+        status.HTTP_404_NOT_FOUND, detail="User not found")
     return user
+
 
 @app.get("/health")
 def health_check():
