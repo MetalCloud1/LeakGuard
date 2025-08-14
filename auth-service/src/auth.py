@@ -10,8 +10,8 @@ from typing import Optional
 
 
 def get_secret_key():
-    environment = os.getenv("ENVIRONMENT","development")
-    
+    environment = os.getenv("ENVIRONMENT", "development")
+
     if environment == "production":
         secret_name = os.getenv("AWS_SECRET_NAME", "auth-service/prod")
         region_name = os.getenv("AWS_REGION", "us-west-2")
@@ -23,7 +23,10 @@ def get_secret_key():
     else:
         return os.getenv("SECRET_KEY", "dummy_dev_key")
 
+
 ALGORITHM = "HS256"
+
+
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
@@ -58,6 +61,7 @@ def decode_token_return_username(token: str) -> Optional[str]:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         return username
+    
     except JWTError:
         return None
     
