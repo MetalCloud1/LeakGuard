@@ -88,9 +88,9 @@ async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
 
     verification_link = f"https://app.com/verify-email?token={token}"
     body = (
-    f"Hello {user.username},\n\n"
-    f"Click this link to verify your email address:\n"
-    f"{verification_link}"
+        f"Hello {user.username},\n\n"
+        f"Click this link to verify your email address:\n"
+        f"{verification_link}"
     )
     send_email(user.email, "Validate your email address", body)
 
@@ -158,8 +158,8 @@ async def read_users_me(
     username = decode_token_return_username(token)
     if not username:
         raise HTTPException(
-            status_code=
-            status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token"
         )
     result = await db.execute(select(User).where(User.username == username))
     user = result.scalars().first()
