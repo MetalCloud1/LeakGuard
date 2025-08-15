@@ -18,3 +18,5 @@ tmp/
 **/infra/k8s/[Pp]rod/
 **/infra/k8s-local/prod
 *secret*.yaml
+
+terraform/.terraform/
