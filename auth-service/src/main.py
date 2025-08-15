@@ -113,7 +113,7 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
 @app.get("/verify-email")
 async def verify_email(
     token: str = Query(...), db: AsyncSession = Depends(get_db)
-    ):
+):
     result = await db.execute(
         select(User).where(User.verification_token == token)
     )
@@ -158,8 +158,8 @@ async def read_users_me(
     username = decode_token_return_username(token)
     if not username:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail=
-            "Invalid or expired token"
+            status_code=
+            status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token"
         )
     result = await db.execute(select(User).where(User.username == username))
     user = result.scalars().first()
