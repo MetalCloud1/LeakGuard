@@ -37,8 +37,7 @@ class UserCreate(UserBase):
                 "The password must contain at least one lowercase letter"
             )
         if not re.search(r"\d", v):
-            raise ValueError("The password must contain at least one number"
-            )
+            raise ValueError("The password must contain at least one number")
         if not re.search(r"[@#$%^&*!?]", v):
             raise ValueError(
                 "The password must contain at least one special character "
