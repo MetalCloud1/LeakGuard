@@ -1,6 +1,4 @@
-from pydantic import (
-    BaseModel, EmailStr, field_validator, Field, ValidationInfo
-)
+from pydantic import BaseModel, EmailStr, field_validator, Field, ValidationInfo
 import re
 
 
@@ -11,9 +9,7 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    username: str = Field(
-        min_length=3, max_length=20, pattern=r"^[a-zA-Z0-9_]+$"
-    )
+    username: str = Field(min_length=3, max_length=20, pattern=r"^[a-zA-Z0-9_]+$")
     full_name: str = Field(min_length=1, max_length=80)
     password: str = Field(min_length=8, max_length=128)
 
@@ -35,8 +31,7 @@ class UserCreate(UserBase):
             raise ValueError("The password must contain" "at least one number")
         if not re.search(r"[@#$%^&*!?]", v):
             raise ValueError(
-                "The password must contain at least one"
-                "special character (@#$%^&*!?)"
+                "The password must contain at least one" "special character (@#$%^&*!?)"
             )
         return v
 

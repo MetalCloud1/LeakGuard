@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status, Request
+from fastapi import FastAPI, Depends, HTTPException, status, Request, Query
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,7 +11,7 @@ from src.auth import (
 from src.database import SessionLocal
 from src.models import User
 from src.schemas import UserCreate, UserOut
-from src.utils import get_password_hash
+from src.utils import get_password_hash, send_email
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -19,10 +19,15 @@ from slowapi.middleware import SlowAPIMiddleware
 from src.logger import logger
 from uuid import uuid4
 from prometheus_fastapi_instrumentator import Instrumentator
+import secrets
 
 
 app = FastAPI()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+
+def generate_verification_token():
+    return secrets.token_urlsafe(32)
 
 
 @app.middleware("http")
@@ -50,14 +55,10 @@ async def get_db():
 
 @app.post("/register", status_code=201)
 async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(
-        select(User).where(User.username == user.username)
-    )
+    result = await db.execute(select(User).where(User.username == user.username))
     user_db = result.scalars().first()
     if user_db:
-        raise HTTPException(
-            status_code=400, detail="Username already registered"
-        )
+        raise HTTPException(status_code=400, detail="Username already registered")
 
     result = await db.execute(select(User).where(User.email == user.email))
     email_db = result.scalars().first()
@@ -65,15 +66,23 @@ async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email already registered")
 
     hashed_password = get_password_hash(user.password)
+    token = generate_verification_token()
+
     new_user = User(
         username=user.username,
         email=user.email,
         full_name=user.full_name,
         hashed_password=hashed_password,
+        verification_token=token,
+        is_verified=False,
     )
     db.add(new_user)
     await db.commit()
     await db.refresh(new_user)
+
+    verification_link = f"https://app.com/verify-email?token={token}"
+    body = f"Hello {user.username},\n\nClick this link to verify your email address:\n{verification_link}"
+    send_email(user.email, "Validate your email address", body)
 
     return {"msg": "User registered successfully"}
 
@@ -91,6 +100,22 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
     )
 
 
+@app.get("/verify-email")
+async def verify_email(token: str = Query(...), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(User).where(User.verification_token == token))
+    user = result.scalars().first()
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid verification token")
+
+    user.is_verified = True
+    user.verification_token = None
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+
+    return {"msg": "Email verified successfully"}
+
+
 @limiter.limit("5/minute")
 @app.post("/token")
 async def login(
@@ -101,8 +126,7 @@ async def login(
     user = await authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
         )
     access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
@@ -115,8 +139,7 @@ async def read_users_me(
     username = decode_token_return_username(token)
     if not username:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token"
         )
     result = await db.execute(select(User).where(User.username == username))
     user = result.scalars().first()
