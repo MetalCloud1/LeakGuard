@@ -1,3 +1,4 @@
+# conftest.py
 import os
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
@@ -5,14 +6,13 @@ from src.main import app, get_db
 from src.database import Base
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-import httpx
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "postgresql+asyncpg://testuser:testpass@localhost:5432/testdb"
 )
 
-@pytest_asyncio.fixture(scope="session")
+@pytest_asyncio.fixture
 async def engine():
     engine = create_async_engine(DATABASE_URL, echo=False, future=True)
     async with engine.begin() as conn:
@@ -22,24 +22,19 @@ async def engine():
         await conn.run_sync(Base.metadata.drop_all)
     await engine.dispose()
 
-@pytest_asyncio.fixture(scope="function")
+@pytest_asyncio.fixture
 async def db_session(engine):
-    async_session = sessionmaker(
-        engine, class_=AsyncSession, expire_on_commit=False
-    )
-    async with async_session() as session:
-        async with session.begin():
+    async with AsyncSession(engine, expire_on_commit=False) as session:
+        async with session.begin():  # transacción por test
             yield session
-        await session.rollback()  
+        await session.rollback()  # asegura limpieza
 
 @pytest_asyncio.fixture
 async def async_client(engine):
     async def override_get_db():
-        async_session = sessionmaker(
-            engine, class_=AsyncSession, expire_on_commit=False
-        )
-        async with async_session() as session:
-            yield session
+        async with AsyncSession(engine, expire_on_commit=False) as session:
+            async with session.begin():
+                yield session
 
     app.dependency_overrides[get_db] = override_get_db
     transport = ASGITransport(app=app)
@@ -49,6 +44,7 @@ async def async_client(engine):
 
 @pytest_asyncio.fixture(autouse=True)
 def block_network_requests(monkeypatch):
+    import httpx
     original_request = httpx.AsyncClient.request
 
     async def _maybe_blocked_request(self, method, url, *args, **kwargs):
