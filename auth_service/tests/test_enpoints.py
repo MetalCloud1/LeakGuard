@@ -1,6 +1,9 @@
 import pytest
 from httpx import AsyncClient
 from unittest.mock import patch
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from src.models import User  # Ajusta si tu modelo de usuario está en otro módulo
 
 @pytest.mark.asyncio
 async def test_health_endpoint(async_client: AsyncClient):
@@ -9,7 +12,7 @@ async def test_health_endpoint(async_client: AsyncClient):
     assert response.json() == {"status": "ok"}
 
 @pytest.mark.asyncio
-async def test_register_and_verify_email(async_client: AsyncClient, db_session):
+async def test_register_and_verify_email(async_client: AsyncClient, db_session: AsyncSession):
     
     user_data = {
         "username": "testuser",
@@ -25,17 +28,16 @@ async def test_register_and_verify_email(async_client: AsyncClient, db_session):
         assert response.json()["msg"] == "User registered successfully"
     
     result = await db_session.execute(
-        "SELECT verification_token FROM users WHERE username='testuser'"
+        select(User.verification_token).where(User.username == "testuser")
     )
     token = result.scalar_one()
-
     
     response = await async_client.get(f"/verify-email?token={token}")
     assert response.status_code == 200
     assert response.json()["msg"] == "Email verified successfully"
 
 @pytest.mark.asyncio
-async def test_login_and_get_current_user(async_client: AsyncClient):
+async def test_login_and_get_current_user(async_client: AsyncClient, db_session: AsyncSession):
     
     data = {"username": "testuser", "password": "Password123!"}
     response = await async_client.post("/token", data=data)
@@ -44,7 +46,6 @@ async def test_login_and_get_current_user(async_client: AsyncClient):
     assert "access_token" in json_data
     token = json_data["access_token"]
 
-    
     headers = {"Authorization": f"Bearer {token}"}
     response = await async_client.get("/users/me", headers=headers)
     assert response.status_code == 200

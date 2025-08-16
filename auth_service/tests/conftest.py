@@ -36,12 +36,12 @@ async def setup_db():
         await conn.run_sync(Base.metadata.drop_all)
     await engine.dispose()
 
-
 @pytest_asyncio.fixture(scope="function")
 async def db_session():
     async with TestingSessionLocal() as session:
-        yield session
-
+        async with session.begin():  # inicia transacción
+            yield session
+            await session.rollback()  # revierte cambios al final del test
 
 @pytest_asyncio.fixture(autouse=True)
 def block_network_requests(monkeypatch):
@@ -56,7 +56,6 @@ def block_network_requests(monkeypatch):
 
     monkeypatch.setattr("httpx.AsyncClient.request", _maybe_blocked_request)
     yield
-
 
 @pytest_asyncio.fixture
 async def async_client():
