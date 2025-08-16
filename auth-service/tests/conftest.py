@@ -1,6 +1,6 @@
 import pytest
 from httpx import AsyncClient
-from main import app
+from src.main import app
 from src.database import Base, engine
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
@@ -40,4 +40,3 @@ async def db_session():
         yield session
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
-        
