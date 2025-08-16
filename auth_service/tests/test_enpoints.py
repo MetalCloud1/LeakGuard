@@ -29,20 +29,23 @@ async def test_register_and_verify_email(async_client: AsyncClient, db_session: 
 
     await db_session.commit()
 
+    # Obtener token del usuario recién registrado
     result = await db_session.execute(
         select(User.verification_token).where(User.username == "testuser")
     )
     token = result.scalar_one()
 
+    # Verificar email
     response = await async_client.get(f"/verify-email?token={token}")
     assert response.status_code == 200
     assert response.json()["msg"] == "Email verified successfully"
 
+    # Obtener usuario confirmado
     result = await db_session.execute(
-        select(User).where(User.verification_token == token)
+        select(User).where(User.username == "testuser")
     )
     user = result.scalar_one()
-    await db_session.commit()
+    assert user.is_verified is True
 
 @pytest.mark.asyncio
 async def test_register_verify_and_login(async_client: AsyncClient, test_db_session: AsyncSession):
