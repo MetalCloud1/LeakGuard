@@ -55,8 +55,12 @@ jobs:
 
       - name: Wait for PostgreSQL
         run: |
-          for i in {1..10}; do
-            pg_isready -h postgres -p 5432 -U testuser && break
+         for i in {1..20}; do
+            pg_isready -h postgres -p 5432 -U testuser
+            if [ $? -eq 0 ]; then
+              echo "Postgres is ready!"
+              break
+            fi
             echo "Waiting for Postgres..."
             sleep 3
           done
@@ -66,7 +70,9 @@ jobs:
           DATABASE_URL: postgresql+asyncpg://testuser:testpass@postgres:5432/testdb
           PYTHONPATH: ./auth-service/src
         run: |
-          python -m pytest -v auth-service/tests
+          export PYTHONPATH="$(pwd)/auth-service/src"
+          echo "PYTHONPATH = $PYTHONPATH"
+          python -m pytest -v -s ./auth-service/tests
 
       - name: Build Docker images (local)
         run: |
