@@ -25,4 +25,3 @@ def get_db():
         yield db   # <- se inyecta en la dependencia de los endpoints
     finally:
         db.close()
-        
