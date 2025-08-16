@@ -1,5 +1,6 @@
 import pytest
 from httpx import AsyncClient
+from unittest.mock import patch
 
 @pytest.mark.asyncio
 async def test_health_endpoint(test_async_client: AsyncClient):
@@ -16,10 +17,12 @@ async def test_register_and_verify_email(test_async_client: AsyncClient, db_sess
         "full_name": "Test User",
         "password": "Password123!"
     }
-    response = await test_async_client.post("/register", json=user_data)
-    assert response.status_code == 201
-    assert response.json()["msg"] == "User registered successfully"
 
+    with patch("src.main.send_email") as mock_send:
+        mock_send.return_value = None  
+        response = await test_async_client.post("/register", json=user_data)
+        assert response.status_code == 201
+        assert response.json()["msg"] == "User registered successfully"
     
     result = await db_session.execute(
         "SELECT verification_token FROM users WHERE username='testuser'"
