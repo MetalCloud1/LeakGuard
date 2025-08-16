@@ -44,7 +44,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install flake8 pytest pytest-asyncio httpx
+          pip install -r requirements-test.txt
           pip install -r auth-service/requirements.txt
           pip install -r users-api/requirements.txt
 
