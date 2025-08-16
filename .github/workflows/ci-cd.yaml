@@ -8,7 +8,7 @@ on:
     branches:
       - main
       - dev
-  workflow_dispatch:   # CD
+  workflow_dispatch:
 
 env:
   AWS_REGION: us-west-2
@@ -17,22 +17,24 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     if: github.event_name != 'workflow_dispatch'
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U testuser"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -41,30 +43,32 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install flake8 pytest mypy
+          pip install flake8 pytest mypy pytest-asyncio httpx asyncpg
           pip install -r auth-service/requirements.txt
           pip install -r users-api/requirements.txt
 
-      - name: Lint and test all services
+      - name: Lint all services
         run: |
           flake8 auth-service/src
           flake8 users-api/src
-          pytest auth-service/tests
-          pytest users-api/tests
 
-      - name: Build Docker images
+      - name: Run all tests
+        env:
+          DATABASE_URL: postgresql+asyncpg://testuser:testpass@localhost:5432/testdb
+        run: |
+          pytest -v auth-service/tests
+          pytest -v users-api/tests
+
+      - name: Build Docker images (local)
         run: |
           services=("auth-service" "users-api")
           for service in "${services[@]}"; do
             docker build -t gilbr/$service:latest $service/
           done
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
   cd:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'  # Solo CD manual
+    if: github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -91,13 +95,9 @@ jobs:
             echo "Pushing $service"
             docker push gilbr/$service:latest
           done
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Terraform Init & Apply
         run: |
           cd infra/terraform
           terraform init
           terraform apply -auto-approve
-          
