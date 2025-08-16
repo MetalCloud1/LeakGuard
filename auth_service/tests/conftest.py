@@ -6,6 +6,7 @@ from src.main import app, get_db
 from src.database import Base
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
+import httpx
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
@@ -44,12 +45,16 @@ async def db_session():
 
 @pytest_asyncio.fixture(autouse=True)
 def block_network_requests(monkeypatch):
-    async def _blocked_request(*args, **kwargs):
+    original_request = httpx.AsyncClient.request
+
+    async def _maybe_blocked_request(self, method, url, *args, **kwargs):
+        if isinstance(self._transport, ASGITransport):
+            return await original_request(self, method, url, *args, **kwargs)
         raise RuntimeError(
             "External HTTP requests are blocked in tests. Mock them with monkeypatch o respx."
         )
 
-    monkeypatch.setattr("httpx.AsyncClient.request", _blocked_request)
+    monkeypatch.setattr("httpx.AsyncClient.request", _maybe_blocked_request)
     yield
 
 
