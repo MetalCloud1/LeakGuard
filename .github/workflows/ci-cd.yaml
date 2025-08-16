@@ -66,13 +66,12 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}/auth-service/src
         run: |
           echo "PYTHONPATH = $PYTHONPATH"
-          python -W ignore::DeprecationWarning -m pytest -v -s auth-service/tests
+          python -m pytest ./auth-service/tests --verbose --maxfail=1 --disable-warnings
 
-      - name: Collect tests
+      - name: List test files
         run: |
-          export PYTHONPATH="$(pwd)/auth-service/src"
-          echo "PYTHONPATH = $PYTHONPATH"
-          python -m pytest --collect-only auth-service/tests
+          echo "Listing test files:"
+          find auth-service/tests -name "*.py"
 
 
       - name: Build Docker images (local)
