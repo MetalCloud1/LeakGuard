@@ -44,14 +44,7 @@ async def setup_db():
 
 @pytest_asyncio.fixture(scope="function")
 async def db_session(setup_db):
-    """
-    Fixture por test:
-      - abre connection dedicada con engine.connect()
-      - inicia transacción exterior (trans)
-      - crea AsyncSession(bind=connection)
-      - inicia nested transaction (savepoint) para permitir commits internos
-      - al final, cierra session y hace rollback de la transacción exterior
-    """
+  
     engine = setup_db["engine"]
 
     async with engine.connect() as connection:
@@ -82,10 +75,19 @@ def block_network_requests(monkeypatch):
 
 
 @pytest_asyncio.fixture
-async def async_client(db_session):
- 
+async def async_client(setup_db):
+    engine = setup_db["engine"]
+
     async def override_get_db():
-        yield db_session
+        async with engine.connect() as connection:
+            trans = await connection.begin()
+            async_session = AsyncSession(bind=connection, expire_on_commit=False)
+            await async_session.begin_nested()
+            try:
+                yield async_session
+            finally:
+                await async_session.close()
+                await trans.rollback()
 
     app.dependency_overrides[get_db] = override_get_db
 
