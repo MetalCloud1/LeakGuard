@@ -47,15 +47,13 @@ async def test_register_validation(async_client):
 async def test_verify_email_flow(async_client, db_session, monkeypatch):
     
     async def fake_post(*args, **kwargs):
-        return type(
-            "Response",
-            (),
-            {
-                "status_code": 200,
-                "json": lambda: {"msg": "Email mocked"}
-            }
-        )()
+        class Resp:
+            status_code = 200
+            def json(self): 
+                return {"msg": "Email mocked"}
+        return Resp()
 
+    
     monkeypatch.setattr("httpx.AsyncClient.post", fake_post)
 
     

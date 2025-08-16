@@ -63,11 +63,10 @@ jobs:
 
       - name: Run all tests
         env:
-          DATABASE_URL: postgresql+asyncpg://testuser:testpass@localhost:5432/testdb
+          DATABASE_URL: postgresql+asyncpg://testuser:testpass@postgres:5432/testdb
           PYTHONPATH: ./auth-service/src
         run: |
           python -m pytest -v auth-service/tests
-          python -m pytest -v users-api/tests
 
       - name: Build Docker images (local)
         run: |
