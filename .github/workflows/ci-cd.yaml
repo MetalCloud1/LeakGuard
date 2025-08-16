@@ -65,9 +65,7 @@ jobs:
           DATABASE_URL: postgresql+asyncpg://testuser:testpass@postgres:5432/testdb
           PYTHONPATH: ${{ github.workspace }}/auth_service/src
         run: |
-          echo "PYTHONPATH = $PYTHONPATH"
-          python -m pytest ./auth_service/tests --verbose --maxfail=1 --disable-warnings
-
+          PYTHONPATH=auth_service/src pytest auth_service/tests -vv --disable-warnings
       - name: List test files
         run: |
           echo "Listing test files:"
