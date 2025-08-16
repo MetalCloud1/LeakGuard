@@ -57,16 +57,16 @@ jobs:
         run: |
           echo "Waiting for Postgres to be ready..."
           for i in {1..20}; do
-            pg_isready -h postgres -p 5432 -U testuser -d testdb && break
+            pg_isready -h localhost -p 5432 -U testuser -d testdb && break
             echo "Postgres not ready yet..."
             sleep 3
           done
           # Exit si no se pudo conectar
-          pg_isready -h postgres -p 5432 -U testuser -d testdb || exit 1
+          pg_isready -h localhost -p 5432 -U testuser -d testdb || exit 1
 
       - name: Run all tests
         env:
-          DATABASE_URL: postgresql+asyncpg://testuser:testpass@postgres:5432/testdb
+          DATABASE_URL: postgresql+asyncpg://testuser:testpass@localhost:5432/testdb
           PYTHONPATH: ${{ github.workspace }}/auth_service/src
         run: |
           python -m pytest auth_service/tests -vv --disable-warnings

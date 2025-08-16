@@ -10,7 +10,7 @@ from src.database import Base, get_db
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql+asyncpg://testuser:testpass@postgres:5432/testdb"  
+    "postgresql+asyncpg://testuser:testpass@localhost:5432/testdb"  
 )
 
 engine = None
@@ -35,7 +35,7 @@ async def wait_for_postgres(host, port, user, password, db, retries=10, delay=3)
 async def test_setup_db():
     global engine, TestingSessionLocal
 
-    await wait_for_postgres("postgres", 5432, "testuser", "testpass", "testdb")
+    await wait_for_postgres("localhost", 5432, "testuser", "testpass", "testdb")
 
     engine = create_async_engine(DATABASE_URL, echo=False, future=True)
     TestingSessionLocal = sessionmaker(
