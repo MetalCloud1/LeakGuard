@@ -32,7 +32,7 @@ async def wait_for_postgres(host, port, user, password, db, retries=10, delay=3)
     raise RuntimeError("Postgres did not become ready in time")
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
-async def setup_db():
+async def test_setup_db():
     global engine, TestingSessionLocal
 
     await wait_for_postgres("postgres", 5432, "testuser", "testpass", "testdb")
@@ -55,12 +55,12 @@ async def setup_db():
     await engine.dispose()
 
 @pytest_asyncio.fixture(scope="function")
-async def db_session():
+async def test_db_session():
     async with TestingSessionLocal() as session:
         yield session
 
 @pytest_asyncio.fixture(autouse=True)
-def block_network_requests(monkeypatch):
+def test_block_network_requests(monkeypatch):
     async def _blocked_request(*args, **kwargs):
         raise RuntimeError(
             "External HTTP requests are blocked in tests. Mock them with monkeypatch or respx."
@@ -69,7 +69,7 @@ def block_network_requests(monkeypatch):
     yield
 
 @pytest_asyncio.fixture
-async def async_client():
+async def test_async_client():
     async def override_get_db():
         async with TestingSessionLocal() as session:
             yield session
