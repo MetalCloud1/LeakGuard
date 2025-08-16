@@ -66,7 +66,7 @@ jobs:
         run: |
           export PYTHONPATH="$(pwd)/auth-service/src"
           echo "PYTHONPATH = $PYTHONPATH"
-          python -m pytest -v -s ./auth-service/tests
+          python -W ignore::DeprecationWarning -m pytest -v -s ./auth-service/tests
 
       - name: Build Docker images (local)
         run: |
