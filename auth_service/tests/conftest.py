@@ -1,11 +1,9 @@
-# conftest.py
 import os
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from src.main import app, get_db
 from src.database import Base
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
@@ -25,16 +23,14 @@ async def engine():
 @pytest_asyncio.fixture
 async def db_session(engine):
     async with AsyncSession(engine, expire_on_commit=False) as session:
-        async with session.begin():  # transacción por test
-            yield session
-        await session.rollback()  # asegura limpieza
+        yield session
+        await session.rollback()
 
 @pytest_asyncio.fixture
 async def async_client(engine):
     async def override_get_db():
         async with AsyncSession(engine, expire_on_commit=False) as session:
-            async with session.begin():
-                yield session
+            yield session
 
     app.dependency_overrides[get_db] = override_get_db
     transport = ASGITransport(app=app)
