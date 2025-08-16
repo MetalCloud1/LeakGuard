@@ -16,7 +16,12 @@ provider "kubernetes" {
   token                  = data.aws_eks_cluster_auth.eks.token
 }
 
-# Secrets Manager for DB
+resource "random_password" "db_password" {
+  length           = 16
+  override_special = "!@#$%&*()-_=+[]{}<>?"
+  special          = true
+}
+
 resource "aws_secretsmanager_secret" "db_secret" {
   name = var.aws_secret_name
 }
@@ -30,19 +35,12 @@ resource "aws_secretsmanager_secret_version" "db_secret_version" {
   })
 }
 
-resource "random_password" "db_password" {
-  length           = 16
-  override_special = "!@#$%&*()-_=+[]{}<>?"
-  special          = true
-}
-
-# RDS PostgreSQL
 resource "aws_db_instance" "authdb" {
   allocated_storage    = var.db_storage
   engine               = "postgres"
   engine_version       = "15"
   instance_class       = var.db_instance_class
-  db_name                 = var.db_name
+  db_name              = var.db_name
   username             = var.db_username
   password             = random_password.db_password.result
   skip_final_snapshot  = true
@@ -50,75 +48,60 @@ resource "aws_db_instance" "authdb" {
   publicly_accessible  = false
 }
 
-resource "kubernetes_namespace" "auth_prod" {
+variable "services" {
+  type = list(object({
+    name     = string
+    image    = string
+    port     = number
+    replicas = number
+  }))
+  default = [
+    { name = "auth-service", image = var.app_image, port = var.app_port, replicas = var.app_replicas },
+    { name = "users-api",  image = "gilbr/users-api:latest", port = 8000, replicas = 1 }
+  ]
+}
+
+resource "kubernetes_namespace" "services" {
+  for_each = { for s in var.services : s.name => s }
   metadata {
-    name = var.namespace
+    name = each.value.name
   }
 }
 
-resource "kubernetes_service_account" "auth_sa" {
-  metadata {
-    name      = "auth-sa"
-    namespace = kubernetes_namespace.auth_prod.metadata[0].name
-    annotations = {
-      "eks.amazonaws.com/role-arn" = var.iam_role_arn
-    }
-  }
-}
+resource "kubernetes_deployment" "services" {
+  for_each = { for s in var.services : s.name => s }
 
-resource "kubernetes_deployment" "auth" {
   metadata {
-    name      = "auth-deployment"
-    namespace = kubernetes_namespace.auth_prod.metadata[0].name
-    labels = { app = "auth-service" }
+    name      = "${each.value.name}-deployment"
+    namespace = each.value.name
+    labels    = { app = each.value.name }
   }
 
   spec {
-    replicas = var.app_replicas
+    replicas = each.value.replicas
 
     selector {
-      match_labels = { app = "auth-service" }
+      match_labels = { app = each.value.name }
     }
 
     template {
-      metadata { labels = { app = "auth-service" } }
+      metadata { labels = { app = each.value.name } }
 
       spec {
-        service_account_name = kubernetes_service_account.auth_sa.metadata[0].name
-
         container {
-          name  = "auth-container"
-          image = var.app_image
+          name  = each.value.name
+          image = each.value.image
 
-          port { container_port = var.app_port }
+          port { container_port = each.value.port }
 
-          env {
-            name  = "ENVIRONMENT"
-            value = "production"
-          }
-          env {
-            name  = "AWS_REGION"
-            value = var.aws_region
-          }
-          env {
-            name  = "AWS_SECRET_NAME"
-            value = var.aws_secret_name
-          }
-
-          readiness_probe{
-            http_get {
-             path = "/health"
-             port = var.app_port 
-            }
+          readiness_probe {
+            http_get { path = "/health"; port = each.value.port }
             initial_delay_seconds = 5
             period_seconds        = 10
           }
 
-          liveness_probe{
-            http_get { 
-                path = "/health"
-                port = var.app_port 
-            }
+          liveness_probe {
+            http_get { path = "/health"; port = each.value.port }
             initial_delay_seconds = 15
             period_seconds        = 20
           }
@@ -133,23 +116,58 @@ resource "kubernetes_deployment" "auth" {
   }
 }
 
-resource "kubernetes_service" "auth" {
+resource "kubernetes_service" "services" {
+  for_each = { for s in var.services : s.name => s }
+
   metadata {
-    name      = "auth-service"
-    namespace = kubernetes_namespace.auth_prod.metadata[0].name
-    labels    = { app = "auth-service" }
+    name      = "${each.value.name}-service"
+    namespace = each.value.name
+    labels    = { app = each.value.name }
   }
 
   spec {
-    selector = { app = "auth-service" }
+    selector = { app = each.value.name }
 
     port {
-      name        = "metrics"
+      name        = "http"
       port        = 80
-      target_port = var.app_port
+      target_port = each.value.port
       protocol    = "TCP"
     }
 
     type = "ClusterIP"
   }
+}
+
+# Monitoring Stack (Helm)
+
+resource "kubernetes_namespace" "monitoring" {
+  metadata {
+    name = "monitoring"
+  }
+}
+
+resource "helm_release" "prometheus" {
+  name       = "prometheus"
+  repository = "https://prometheus-community.github.io/helm-charts"
+  chart      = "prometheus"
+  namespace  = kubernetes_namespace.monitoring.metadata[0].name
+}
+
+resource "helm_release" "loki" {
+  name       = "loki"
+  repository = "https://grafana.github.io/helm-charts"
+  chart      = "loki-stack"
+  namespace  = kubernetes_namespace.monitoring.metadata[0].name
+}
+
+resource "helm_release" "grafana" {
+  name       = "grafana"
+  repository = "https://grafana.github.io/helm-charts"
+  chart      = "grafana"
+  namespace  = kubernetes_namespace.monitoring.metadata[0].name
+
+  values = [
+    file("grafana-values.yaml")
+  ]
 }
