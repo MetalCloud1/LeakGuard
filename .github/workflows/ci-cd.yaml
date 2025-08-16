@@ -63,10 +63,10 @@ jobs:
       - name: Run all tests
         env:
           DATABASE_URL: postgresql+asyncpg://testuser:testpass@postgres:5432/testdb
+          PYTHONPATH: ${{ github.workspace }}/auth-service/src
         run: |
-          export PYTHONPATH="$(pwd)/auth-service/src"
           echo "PYTHONPATH = $PYTHONPATH"
-          python -W ignore::DeprecationWarning -m pytest -v -s ./auth-service/tests
+          python -W ignore::DeprecationWarning -m pytest -v -s auth-service/tests
 
       - name: Build Docker images (local)
         run: |
