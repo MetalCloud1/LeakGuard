@@ -3,7 +3,7 @@ import os
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from src.main import app, get_db
-from src.database import Base  # IMPORTAR solo la metadata/modelos (no engine)
+from src.database import Base
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy import event
@@ -20,10 +20,8 @@ def _restart_savepoint(session: Session, transaction):
 
 event.listen(Session, "after_transaction_end", _restart_savepoint)
 
-
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def setup_db():
-    
     engine = create_async_engine(DATABASE_URL, echo=False, future=True)
 
     TestingSessionLocal = sessionmaker(
@@ -32,13 +30,11 @@ async def setup_db():
         autoflush=False,
     )
 
-    
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
     yield {"engine": engine, "TestingSessionLocal": TestingSessionLocal}
 
-    
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
     await engine.dispose()
@@ -46,16 +42,18 @@ async def setup_db():
 
 @pytest_asyncio.fixture(scope="function")
 async def db_session(setup_db):
+    """
+    Sesión por test que usa:
+      - una conexión exclusiva (engine.connect())
+      - una transacción exterior (rollback al final)
+      - una nested transaction (savepoint) para permitir commits dentro de la app
+    """
     engine = setup_db["engine"]
-    TestingSessionLocal = setup_db["TestingSessionLocal"]
 
     async with engine.connect() as connection:
-        trans = await connection.begin()
-
-        
+        trans = await connection.begin()                       
         async_session = AsyncSession(bind=connection, expire_on_commit=False, autoflush=False)
 
-      
         await async_session.begin_nested()
 
         try:
@@ -80,12 +78,20 @@ def block_network_requests(monkeypatch):
 
 @pytest_asyncio.fixture
 async def async_client(setup_db):
+ 
     TestingSessionLocal = setup_db["TestingSessionLocal"]
+    engine = setup_db["engine"]
 
     async def override_get_db():
-        async with TestingSessionLocal() as session:  # nueva sesión por request
-            yield session
+        async with engine.connect() as connection:
+            async with connection.begin():
+                session = AsyncSession(bind=connection, expire_on_commit=False, autoflush=False)
+                try:
+                    yield session
+                finally:
+                    await session.close()
 
+   
     app.dependency_overrides[get_db] = override_get_db
 
     transport = ASGITransport(app=app)
