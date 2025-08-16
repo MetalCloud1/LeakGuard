@@ -44,7 +44,21 @@ async def test_register_validation(async_client):
 
 
 @pytest.mark.asyncio
-async def test_verify_email_flow(async_client, db_session):
+async def test_verify_email_flow(async_client, db_session, monkeypatch):
+    
+    async def fake_post(*args, **kwargs):
+        return type(
+            "Response",
+            (),
+            {
+                "status_code": 200,
+                "json": lambda: {"msg": "Email mocked"}
+            }
+        )()
+
+    monkeypatch.setattr("httpx.AsyncClient.post", fake_post)
+
+    
     result = await db_session.execute(select(User).where(User.username == "testuser"))
     user = result.scalars().first()
     assert user is not None, "testuser not found in DB; registration likely failed"
@@ -62,9 +76,14 @@ async def test_verify_email_flow(async_client, db_session):
     assert user_after.is_verified is True, "user.is_verified should be True after verification"
     assert user_after.verification_token in (None, ""), "verification_token should be cleared after verification"
 
+    
     response = await async_client.get("/verify-email?token=invalidtoken")
     assert response.status_code == 400, f"expected 400 for invalid token, got {response.status_code}"
 
+    
+    response = await async_client.post("/auth/verify-email", json={"email": "test@example.com"})
+    assert response.status_code == 200
+    assert response.json()["msg"] == "Email mocked"
 
 @pytest.mark.asyncio
 async def test_login_and_userinfo(async_client):
@@ -77,7 +96,7 @@ async def test_login_and_userinfo(async_client):
     token = body["access_token"]
     assert JWT_RE.match(token), f"access_token does not look like a JWT: {token}"
 
-    # Acceder a /users/me con el token obtenido
+    
     headers = {"Authorization": f"Bearer {token}"}
     response = await async_client.get("/users/me", headers=headers)
     assert response.status_code == 200, f"/users/me failed: {response.status_code} - {response.text}"
