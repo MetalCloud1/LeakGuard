@@ -79,9 +79,12 @@ def block_network_requests(monkeypatch):
 
 
 @pytest_asyncio.fixture
-async def async_client(db_session):
+async def async_client(setup_db):
+    TestingSessionLocal = setup_db["TestingSessionLocal"]
+
     async def override_get_db():
-        yield db_session
+        async with TestingSessionLocal() as session:  # nueva sesión por request
+            yield session
 
     app.dependency_overrides[get_db] = override_get_db
 
