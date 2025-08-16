@@ -20,8 +20,10 @@ def _restart_savepoint(session: Session, transaction):
 
 event.listen(Session, "after_transaction_end", _restart_savepoint)
 
+
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def setup_db():
+ 
     engine = create_async_engine(DATABASE_URL, echo=False, future=True)
 
     TestingSessionLocal = sessionmaker(
@@ -43,15 +45,17 @@ async def setup_db():
 @pytest_asyncio.fixture(scope="function")
 async def db_session(setup_db):
     """
-    Sesión por test que usa:
-      - una conexión exclusiva (engine.connect())
-      - una transacción exterior (rollback al final)
-      - una nested transaction (savepoint) para permitir commits dentro de la app
+    Fixture por test:
+      - abre connection dedicada con engine.connect()
+      - inicia transacción exterior (trans)
+      - crea AsyncSession(bind=connection)
+      - inicia nested transaction (savepoint) para permitir commits internos
+      - al final, cierra session y hace rollback de la transacción exterior
     """
     engine = setup_db["engine"]
 
     async with engine.connect() as connection:
-        trans = await connection.begin()                       
+        trans = await connection.begin()  
         async_session = AsyncSession(bind=connection, expire_on_commit=False, autoflush=False)
 
         await async_session.begin_nested()
@@ -65,6 +69,7 @@ async def db_session(setup_db):
 
 @pytest_asyncio.fixture(autouse=True)
 def block_network_requests(monkeypatch):
+  
     original_request = httpx.AsyncClient.request
 
     async def _maybe_blocked_request(self, method, url, *args, **kwargs):
@@ -77,21 +82,11 @@ def block_network_requests(monkeypatch):
 
 
 @pytest_asyncio.fixture
-async def async_client(setup_db):
+async def async_client(db_session):
  
-    TestingSessionLocal = setup_db["TestingSessionLocal"]
-    engine = setup_db["engine"]
-
     async def override_get_db():
-        async with engine.connect() as connection:
-            async with connection.begin():
-                session = AsyncSession(bind=connection, expire_on_commit=False, autoflush=False)
-                try:
-                    yield session
-                finally:
-                    await session.close()
+        yield db_session
 
-   
     app.dependency_overrides[get_db] = override_get_db
 
     transport = ASGITransport(app=app)
