@@ -24,6 +24,8 @@ jobs:
           POSTGRES_USER: testuser
           POSTGRES_PASSWORD: testpass
           POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd="pg_isready -U testuser -d testdb"
           --health-interval=5s
@@ -59,13 +61,16 @@ jobs:
             echo "Postgres not ready yet..."
             sleep 3
           done
+          # Exit si no se pudo conectar
+          pg_isready -h postgres -p 5432 -U testuser -d testdb || exit 1
 
       - name: Run all tests
         env:
           DATABASE_URL: postgresql+asyncpg://testuser:testpass@postgres:5432/testdb
           PYTHONPATH: ${{ github.workspace }}/auth_service/src
         run: |
-          PYTHONPATH=auth_service/src pytest auth_service/tests -vv --disable-warnings
+          python -m pytest auth_service/tests -vv --disable-warnings
+
       - name: List test files
         run: |
           echo "Listing test files:"
