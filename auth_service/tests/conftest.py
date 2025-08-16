@@ -2,21 +2,18 @@ import os
 import pytest_asyncio
 import pytest
 from httpx import AsyncClient, ASGITransport
-from src.main import app
-from src.database import Base, get_db
+from src.main import app, get_db
+from src.database import Base
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "postgresql+asyncpg://testuser:testpass@localhost:5432/testdb"
 )
 
-
 engine = None
 TestingSessionLocal = None
-
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def setup_db():
@@ -29,13 +26,11 @@ async def setup_db():
         autoflush=False,
     )
 
-    
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
     yield
 
-    
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
     await engine.dispose()
@@ -51,7 +46,7 @@ async def db_session():
 def block_network_requests(monkeypatch):
     async def _blocked_request(*args, **kwargs):
         raise RuntimeError(
-            "External HTTP requests are blocked in tests. Mock them with monkeypatch or respx."
+            "External HTTP requests are blocked in tests. Mock them with monkeypatch o respx."
         )
 
     monkeypatch.setattr("httpx.AsyncClient.request", _blocked_request)
