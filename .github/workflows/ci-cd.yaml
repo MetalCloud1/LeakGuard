@@ -1,18 +1,22 @@
 name: CI/CD Pipeline
 
 on:
-  workflow_dispatch:  # CD manual
   push:
+    branches:
+      - dev
+  pull_request:
     branches:
       - main
       - dev
+  workflow_dispatch:   # CD
+
+env:
+  AWS_REGION: us-west-2
 
 jobs:
-  build-and-deploy:
+  ci:
     runs-on: ubuntu-latest
-    env:
-      AWS_REGION: us-west-2
-
+    if: github.event_name != 'workflow_dispatch'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -48,6 +52,36 @@ jobs:
           pytest auth-service/tests
           pytest users-api/tests
 
+      - name: Build Docker images
+        run: |
+          services=("auth-service" "users-api")
+          for service in "${services[@]}"; do
+            docker build -t gilbr/$service:latest $service/
+          done
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+  cd:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'  # Solo CD manual
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Build & Push Docker images
         run: |
           services=("auth-service" "users-api")
@@ -66,3 +100,4 @@ jobs:
           cd infra/terraform
           terraform init
           terraform apply -auto-approve
+          
