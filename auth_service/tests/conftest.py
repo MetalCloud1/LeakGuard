@@ -3,7 +3,7 @@ import os
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from src.main import app, get_db
-from src.database import Base
+from src.database import Base  # IMPORTAR solo la metadata/modelos (no engine)
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy import event
@@ -14,14 +14,6 @@ DATABASE_URL = os.getenv(
     "postgresql+asyncpg://testuser:testpass@localhost:5432/testdb"
 )
 
-engine = create_async_engine(DATABASE_URL, echo=False, future=True)
-TestingSessionLocal = sessionmaker(
-    class_=AsyncSession,
-    expire_on_commit=False,
-    autoflush=False,
-)
-
-
 def _restart_savepoint(session: Session, transaction):
     if transaction.nested and not session.is_active:
         session.begin_nested()
@@ -30,12 +22,25 @@ event.listen(Session, "after_transaction_end", _restart_savepoint)
 
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
-async def setup_db():
-    # crear tablas
+async def setup_db(monkeypatch):
+    engine = create_async_engine(DATABASE_URL, echo=False, future=True)
+
+    TestingSessionLocal = sessionmaker(
+        class_=AsyncSession,
+        expire_on_commit=False,
+        autoflush=False,
+    )
+    try:
+        import src.database as src_database
+        monkeypatch.setattr(src_database, "engine", engine, raising=False)
+        monkeypatch.setattr(src_database, "SessionLocal", TestingSessionLocal, raising=False)
+    except Exception:
+        pass
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    yield
+    yield {"engine": engine, "TestingSessionLocal": TestingSessionLocal}
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
@@ -43,20 +48,24 @@ async def setup_db():
 
 
 @pytest_asyncio.fixture(scope="function")
-async def db_session():
-    async with engine.connect() as connection:
-        transaction = await connection.begin()
+async def db_session(setup_db):
+    engine = setup_db["engine"]
+    TestingSessionLocal = setup_db["TestingSessionLocal"]
 
+    async with engine.connect() as connection:
+        trans = await connection.begin()
+
+        
         async_session = AsyncSession(bind=connection, expire_on_commit=False, autoflush=False)
 
-       
+      
         await async_session.begin_nested()
 
         try:
             yield async_session
         finally:
             await async_session.close()
-            await transaction.rollback()
+            await trans.rollback()
 
 
 @pytest_asyncio.fixture(autouse=True)
@@ -64,12 +73,9 @@ def block_network_requests(monkeypatch):
     original_request = httpx.AsyncClient.request
 
     async def _maybe_blocked_request(self, method, url, *args, **kwargs):
-        # permitir requests internas a la app via ASGITransport
         if isinstance(self._transport, ASGITransport):
             return await original_request(self, method, url, *args, **kwargs)
-        raise RuntimeError(
-            "External HTTP requests are blocked in tests. Mock them with monkeypatch o respx."
-        )
+        raise RuntimeError("External HTTP requests are blocked in tests. Mock them.")
 
     monkeypatch.setattr("httpx.AsyncClient.request", _maybe_blocked_request)
     yield
