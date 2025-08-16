@@ -1,10 +1,10 @@
-import pytest
+import pytest_asyncio
 from src.models import User
 from src.database import SessionLocal
 from sqlalchemy.future import select
 import re
 
-@pytest.mark.asyncio
+@pytest_asyncio.mark.asyncio
 async def test_register_validation(async_client):
     response = await async_client.post("/register", json={
         "username": "testuser",
@@ -31,7 +31,7 @@ async def test_register_validation(async_client):
     })
     assert response.status_code == 400
 
-@pytest.mark.asyncio
+@pytest_asyncio.mark.asyncio
 async def test_verify_email_flow(async_client):
     async with SessionLocal() as db:
         result = await db.execute(select(User).where(User.username=="testuser"))
@@ -45,7 +45,7 @@ async def test_verify_email_flow(async_client):
     response = await async_client.get("/verify-email?token=invalidtoken")
     assert response.status_code == 400
 
-@pytest.mark.asyncio
+@pytest_asyncio.mark.asyncio
 async def test_login_and_userinfo(async_client):
     response = await async_client.post("/token", data={
         "username": "testuser",
@@ -62,7 +62,7 @@ async def test_login_and_userinfo(async_client):
     assert data["username"] == "testuser"
     assert "hashed_password" not in data
 
-@pytest.mark.asyncio
+@pytest_asyncio.mark.asyncio
 async def test_rate_limit(async_client):
     for _ in range(5):
         response = await async_client.post("/token", data={
@@ -75,7 +75,7 @@ async def test_rate_limit(async_client):
     })
     assert response.status_code == 429
 
-@pytest.mark.asyncio
+@pytest_asyncio.mark.asyncio
 async def test_health_endpoint(async_client):
     response = await async_client.get("/health")
     assert response.status_code == 200

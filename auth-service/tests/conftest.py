@@ -23,7 +23,7 @@ async def async_client():
         yield ac
 
 
-DATABASE_URL = "postgresql+asyncpg://testuser:testpass@localhost:5432/testdb"
+DATABASE_URL = "postgresql+asyncpg://testuser:testpass@postgres:5432/testdb"
 
 
 engine = create_async_engine(DATABASE_URL, echo=True)
