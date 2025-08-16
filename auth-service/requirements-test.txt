@@ -3,7 +3,7 @@ pytest-asyncio==1.1.0
 httpx==0.23.3
 flake8==6.1.0
 mypy==1.5.1
-asyncpg>=0.27.0,<0.28
+asyncpg=0.30.0
 sqlalchemy==2.0.21  
 passlib[bcrypt]==1.7.4
 pytest-cov==4.1.0
