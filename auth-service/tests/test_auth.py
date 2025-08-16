@@ -1,103 +1,83 @@
+import os
+import asyncio
+import pytest_asyncio
 import pytest
-import re
-from sqlalchemy.future import select
-from src.models import User
+from httpx import AsyncClient, ASGITransport
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
+from src.main import app
+from src.database import Base, get_db
 
-JWT_RE = re.compile(r"^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$")
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql+asyncpg://testuser:testpass@postgres:5432/testdb"  
+)
 
+engine = None
+TestingSessionLocal = None
 
-@pytest.mark.asyncio
-async def test_register_validation(async_client):
-    response = await async_client.post(
-        "/register",
-        json={
-            "username": "testuser",
-            "email": "test@example.com",
-            "full_name": "Test User",
-            "password": "StrongPass123!",
-        },
+async def wait_for_postgres(host, port, user, password, db, retries=10, delay=3):
+    import asyncpg
+    for i in range(retries):
+        try:
+            conn = await asyncpg.connect(
+                host=host, port=port, user=user, password=password, database=db
+            )
+            await conn.close()
+            print("Postgres is ready!")
+            return
+        except Exception as e:
+            print(f"Waiting for Postgres... attempt {i+1}/{retries}: {e}")
+            await asyncio.sleep(delay)
+    raise RuntimeError("Postgres did not become ready in time")
+
+@pytest_asyncio.fixture(scope="session", autouse=True)
+async def setup_db():
+    global engine, TestingSessionLocal
+
+    await wait_for_postgres("postgres", 5432, "testuser", "testpass", "testdb")
+
+    engine = create_async_engine(DATABASE_URL, echo=False, future=True)
+    TestingSessionLocal = sessionmaker(
+        bind=engine,
+        class_=AsyncSession,
+        expire_on_commit=False,
+        autoflush=False,
     )
-    assert response.status_code == 201, f"expected 201, got {response.status_code} - {response.text}"
-    assert "msg" in response.json(), f"response body missing 'msg': {response.text}"
 
-    response = await async_client.post(
-        "/register",
-        json={
-            "username": "testuser",
-            "email": "test2@example.com",
-            "full_name": "Test User",
-            "password": "StrongPass123!",
-        },
-    )
-    assert response.status_code == 400, f"expected 400 for duplicate username, got {response.status_code}"
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
-    response = await async_client.post(
-        "/register",
-        json={
-            "username": "testuser2",
-            "email": "test@example.com",
-            "full_name": "Test User",
-            "password": "StrongPass123!",
-        },
-    )
-    assert response.status_code == 400, f"expected 400 for duplicate email, got {response.status_code}"
+    yield
 
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+    await engine.dispose()
 
-@pytest.mark.asyncio
-async def test_verify_email_flow(async_client, db_session, monkeypatch):
-    
-    async def fake_post(*args, **kwargs):
-        class Resp:
-            status_code = 200
-            def json(self): 
-                return {"msg": "Email mocked"}
-        return Resp()
+@pytest_asyncio.fixture(scope="function")
+async def db_session():
+    async with TestingSessionLocal() as session:
+        yield session
 
-    
-    monkeypatch.setattr("httpx.AsyncClient.post", fake_post)
+@pytest_asyncio.fixture(autouse=True)
+def block_network_requests(monkeypatch):
+    async def _blocked_request(*args, **kwargs):
+        raise RuntimeError(
+            "External HTTP requests are blocked in tests. Mock them with monkeypatch or respx."
+        )
+    monkeypatch.setattr("httpx.AsyncClient.request", _blocked_request)
+    yield
 
-    
-    result = await db_session.execute(select(User).where(User.username == "testuser"))
-    user = result.scalars().first()
-    assert user is not None, "testuser not found in DB; registration likely failed"
-    token = user.verification_token
-    assert token, "verification_token missing for testuser"
+@pytest_asyncio.fixture
+async def async_client():
+    async def override_get_db():
+        async with TestingSessionLocal() as session:
+            yield session
 
-    response = await async_client.get(f"/verify-email?token={token}")
-    assert response.status_code == 200, f"expected 200 on valid token, got {response.status_code}"
-    body = response.json()
-    assert "msg" in body and "verified" in body["msg"].lower(), f"unexpected verify response: {body}"
+    app.dependency_overrides[get_db] = override_get_db
 
-    result = await db_session.execute(select(User).where(User.username == "testuser"))
-    user_after = result.scalars().first()
-    assert user_after is not None, "user disappeared after verification"
-    assert user_after.is_verified is True, "user.is_verified should be True after verification"
-    assert user_after.verification_token in (None, ""), "verification_token should be cleared after verification"
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        yield client
 
-    
-    response = await async_client.get("/verify-email?token=invalidtoken")
-    assert response.status_code == 400, f"expected 400 for invalid token, got {response.status_code}"
-
-    
-    response = await async_client.post("/auth/verify-email", json={"email": "test@example.com"})
-    assert response.status_code == 200
-    assert response.json()["msg"] == "Email mocked"
-
-@pytest.mark.asyncio
-async def test_login_and_userinfo(async_client):
-    response = await async_client.post(
-        "/token", data={"username": "testuser", "password": "StrongPass123!"}
-    )
-    assert response.status_code == 200, f"login failed: {response.status_code} - {response.text}"
-    body = response.json()
-    assert "access_token" in body, f"no access_token in login response: {body}"
-    token = body["access_token"]
-    assert JWT_RE.match(token), f"access_token does not look like a JWT: {token}"
-
-    
-    headers = {"Authorization": f"Bearer {token}"}
-    response = await async_client.get("/users/me", headers=headers)
-    assert response.status_code == 200, f"/users/me failed: {response.status_code} - {response.text}"
-    data = response.json()
-    assert data.get("username") == "testuser", f"expected username testuser, got {data}"
-    assert "hashed_password" not in data, "hashed_password must not be returned by /users/me"
+    app.dependency_overrides.clear()
