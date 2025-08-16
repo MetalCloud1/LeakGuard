@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import sessionmaker, declarative_base, Session
 import os
 
 POSTGRES_USER = os.getenv("POSTGRES_USER")
@@ -17,3 +17,12 @@ SessionLocal = sessionmaker(
     engine, expire_on_commit=False, class_=AsyncSession
 )
 Base = declarative_base()
+
+
+def get_db():
+    db: Session = SessionLocal()
+    try:
+        yield db   # <- se inyecta en la dependencia de los endpoints
+    finally:
+        db.close()
+        
