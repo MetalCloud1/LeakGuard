@@ -50,3 +50,8 @@ def block_network_requests(monkeypatch):
 
     monkeypatch.setattr("httpx.AsyncClient.request", _maybe_blocked_request)
     yield
+
+@pytest_asyncio.fixture
+async def test_db_session(engine):
+    async with AsyncSession(engine, expire_on_commit=False) as session:
+        yield session
