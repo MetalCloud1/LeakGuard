@@ -1,6 +1,5 @@
 import os
 import pytest_asyncio
-import pytest
 from httpx import AsyncClient, ASGITransport
 from src.main import app, get_db
 from src.database import Base
@@ -39,9 +38,9 @@ async def setup_db():
 @pytest_asyncio.fixture(scope="function")
 async def db_session():
     async with TestingSessionLocal() as session:
-        async with session.begin():  # inicia transacción
+        async with session.begin():  
             yield session
-            await session.rollback()  # revierte cambios al final del test
+            await session.rollback()  
 
 @pytest_asyncio.fixture(autouse=True)
 def block_network_requests(monkeypatch):
@@ -58,7 +57,7 @@ def block_network_requests(monkeypatch):
     yield
 
 @pytest_asyncio.fixture
-async def async_client():
+async def async_client(db_session):
     async def override_get_db():
         async with TestingSessionLocal() as session:
             yield session
