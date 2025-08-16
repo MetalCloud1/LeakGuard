@@ -22,7 +22,8 @@ event.listen(Session, "after_transaction_end", _restart_savepoint)
 
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
-async def setup_db(monkeypatch):
+async def setup_db():
+    
     engine = create_async_engine(DATABASE_URL, echo=False, future=True)
 
     TestingSessionLocal = sessionmaker(
@@ -30,18 +31,14 @@ async def setup_db(monkeypatch):
         expire_on_commit=False,
         autoflush=False,
     )
-    try:
-        import src.database as src_database
-        monkeypatch.setattr(src_database, "engine", engine, raising=False)
-        monkeypatch.setattr(src_database, "SessionLocal", TestingSessionLocal, raising=False)
-    except Exception:
-        pass
 
+    
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
     yield {"engine": engine, "TestingSessionLocal": TestingSessionLocal}
 
+    
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
     await engine.dispose()
