@@ -42,13 +42,13 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -r auth-service/requirements-test.txt
-          pip install -r auth-service/requirements.txt
+          pip install -r auth_service/requirements-test.txt
+          pip install -r auth_service/requirements.txt
           pip install -r users-api/requirements.txt
 
       - name: Lint all services
         run: |
-          flake8 auth-service/src
+          flake8 auth_service/src
           flake8 users-api/src
 
       - name: Wait for PostgreSQL
@@ -63,20 +63,19 @@ jobs:
       - name: Run all tests
         env:
           DATABASE_URL: postgresql+asyncpg://testuser:testpass@postgres:5432/testdb
-          PYTHONPATH: ${{ github.workspace }}/auth-service/src
+          PYTHONPATH: ${{ github.workspace }}/auth_service/src
         run: |
           echo "PYTHONPATH = $PYTHONPATH"
-          python -m pytest ./auth-service/tests --verbose --maxfail=1 --disable-warnings
+          python -m pytest ./auth_service/tests --verbose --maxfail=1 --disable-warnings
 
       - name: List test files
         run: |
           echo "Listing test files:"
-          find auth-service/tests -name "*.py"
-
+          find auth_service/tests -name "*.py"
 
       - name: Build Docker images (local)
         run: |
-          services=("auth-service" "users-api")
+          services=("auth_service" "users-api")
           for service in "${services[@]}"; do
             docker build -t gilbr/$service:latest $service/
           done
@@ -103,7 +102,7 @@ jobs:
 
       - name: Build & Push Docker images
         run: |
-          services=("auth-service" "users-api")
+          services=("auth_service" "users-api")
           for service in "${services[@]}"; do
             echo "Building $service"
             docker build -t gilbr/$service:latest $service/
