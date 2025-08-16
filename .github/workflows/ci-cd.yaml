@@ -25,10 +25,10 @@ jobs:
           POSTGRES_PASSWORD: testpass
           POSTGRES_DB: testdb
         options: >-
-          --health-cmd="pg_isready -U testuser"
-          --health-interval=10s
+          --health-cmd="pg_isready -U testuser -d testdb"
+          --health-interval=5s
           --health-timeout=5s
-          --health-retries=5
+          --health-retries=20
 
     steps:
       - name: Checkout repository
@@ -53,20 +53,16 @@ jobs:
 
       - name: Wait for PostgreSQL
         run: |
-         for i in {1..20}; do
-            pg_isready -h postgres -p 5432 -U testuser
-            if [ $? -eq 0 ]; then
-              echo "Postgres is ready!"
-              break
-            fi
-            echo "Waiting for Postgres..."
+          echo "Waiting for Postgres to be ready..."
+          for i in {1..20}; do
+            pg_isready -h postgres -p 5432 -U testuser -d testdb && break
+            echo "Postgres not ready yet..."
             sleep 3
           done
 
       - name: Run all tests
         env:
           DATABASE_URL: postgresql+asyncpg://testuser:testpass@postgres:5432/testdb
-          PYTHONPATH: ./auth-service/src
         run: |
           export PYTHONPATH="$(pwd)/auth-service/src"
           echo "PYTHONPATH = $PYTHONPATH"
