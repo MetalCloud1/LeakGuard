@@ -43,6 +43,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          pip install --upgrade pip
           pip install flake8 pytest mypy pytest-asyncio httpx asyncpg
           pip install -r auth-service/requirements.txt
           pip install -r users-api/requirements.txt
@@ -52,12 +53,21 @@ jobs:
           flake8 auth-service/src
           flake8 users-api/src
 
+      - name: Wait for PostgreSQL
+        run: |
+          for i in {1..10}; do
+            pg_isready -h localhost -p 5432 -U testuser && break
+            echo "Waiting for Postgres..."
+            sleep 3
+          done
+
       - name: Run all tests
         env:
           DATABASE_URL: postgresql+asyncpg://testuser:testpass@localhost:5432/testdb
+          PYTHONPATH: ./auth-service/src
         run: |
-          pytest -v auth-service/tests
-          pytest -v users-api/tests
+          python -m pytest -v auth-service/tests
+          python -m pytest -v users-api/tests
 
       - name: Build Docker images (local)
         run: |
