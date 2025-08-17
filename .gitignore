@@ -23,4 +23,4 @@ terraform/.terraform/
 
 .vscode/
 
-./auth_service/secret.json
+**/secret.json
