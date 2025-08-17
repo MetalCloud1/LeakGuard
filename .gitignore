@@ -18,7 +18,7 @@ tmp/
 **/infra/k8s/[Pp]rod/
 **/infra/k8s/prod
 *secret*.yaml
-
+#Terraform
 terraform/.terraform/
 terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
