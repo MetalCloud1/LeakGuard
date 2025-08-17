@@ -16,7 +16,7 @@ tmp/
 
 # K8s YAML prod
 **/infra/k8s/[Pp]rod/
-**/infra/k8s-local/prod
+**/infra/k8s/prod
 *secret*.yaml
 
 terraform/.terraform/
@@ -24,3 +24,5 @@ terraform/.terraform/
 .vscode/
 
 **/secret.json
+
+**/infra/iam/iam-policies
