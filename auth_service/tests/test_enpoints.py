@@ -29,18 +29,15 @@ async def test_register_and_verify_email(async_client: AsyncClient, db_session: 
 
     await db_session.commit()
 
-    # Obtener token del usuario recién registrado
     result = await db_session.execute(
         select(User.verification_token).where(User.username == "testuser")
     )
     token = result.scalar_one()
 
-    # Verificar email
     response = await async_client.get(f"/verify-email?token={token}")
     assert response.status_code == 200
     assert response.json()["msg"] == "Email verified successfully"
 
-    # Obtener usuario confirmado
     result = await db_session.execute(
         select(User).where(User.username == "testuser")
     )
