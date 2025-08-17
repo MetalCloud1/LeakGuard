@@ -27,4 +27,4 @@ terraform/.terraform/
 
 **/infra/iam/iam-policies
 
-auth_service/alembic/env.py
+/auth_service/alembic/env.py
