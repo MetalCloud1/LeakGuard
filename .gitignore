@@ -26,3 +26,5 @@ terraform/.terraform/
 **/secret.json
 
 **/infra/iam/iam-policies
+
+auth_service/alembic/env.py
