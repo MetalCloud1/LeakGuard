@@ -20,6 +20,8 @@ tmp/
 *secret*.yaml
 
 terraform/.terraform/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
 
 .vscode/
 
@@ -28,3 +30,4 @@ terraform/.terraform/
 **/infra/iam/iam-policies
 
 /auth_service/alembic/env.py
+
