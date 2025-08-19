@@ -1,0 +1,105 @@
+# ==============================================================================
+# Prometheus secrets template for Helm
+#
+# This template is automatically generated when installing Prometheus Operator using Helm.
+# To install Prometheus with Helm and generate these secrets:
+#
+# 1. Add the Prometheus Helm repository:
+#    helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+#    helm repo update
+#
+# 2. Install Prometheus Operator:
+#    helm install prometheus-operator prometheus-community/kube-prometheus-stack \
+#      --namespace monitoring --create-namespace
+#
+# 3. Helm will automatically create the TLS and configuration secrets in the
+#    “monitoring” namespace with names managed by the Prometheus operator.
+#
+# NOTE: Placeholders such as {{ .PrometheusName }} are dynamically replaced by Helm
+#       when rendering templates with values from values.yaml.
+# ==============================================================================
+
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: {{ .PrometheusName }}
+    namespace: {{ .Namespace }}
+    labels:
+      managed-by: prometheus-operator
+    ownerReferences:
+    - apiVersion: monitoring.coreos.com/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Prometheus
+      name: {{ .PrometheusName }}
+      uid: {{ .OwnerUID }}
+    resourceVersion: "{{ .ResourceVersion }}"
+    uid: {{ .SecretUID }}
+    creationTimestamp: "{{ .CreationTimestamp }}"
+  type: Opaque
+  data:
+    tls.crt: {{ .TLSCert | default "" | b64encode }}
+    tls.key: {{ .TLSKey | default "" | b64encode }}
+
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: {{ .PrometheusName }}
+    namespace: {{ .Namespace }}
+    labels:
+      managed-by: prometheus-operator
+    ownerReferences:
+    - apiVersion: monitoring.coreos.com/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Prometheus
+      name: {{ .PrometheusName }}
+      uid: {{ .OwnerUID }}
+    resourceVersion: "{{ .ResourceVersion }}"
+    uid: {{ .SecretUID }}
+    creationTimestamp: "{{ .CreationTimestamp }}"
+  type: Opaque
+  data:
+    web-config.yaml: ""
+
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: {{ .PrometheusName }}
+    namespace: {{ .Namespace }}
+    labels:
+      managed-by: prometheus-operator
+    ownerReferences:
+    - apiVersion: monitoring.coreos.com/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Prometheus
+      name: {{ .PrometheusName }}
+      uid: {{ .OwnerUID }}
+    resourceVersion: "{{ .ResourceVersion }}"
+    uid: {{ .SecretUID }}
+    creationTimestamp: "{{ .CreationTimestamp }}"
+  type: Opaque
+  data:
+    prometheus.http-client-file.yaml: {{ .HTTPClientConfig | b64encode }}
+
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: sh.helm.release.v1.{{ .HelmReleaseName }}.v{{ .HelmReleaseVersion }}
+    namespace: {{ .Namespace }}
+    labels:
+      modifiedAt: "{{ .ModifiedAt }}"
+      name: {{ .HelmReleaseName }}
+      owner: helm
+      status: deployed
+      version: "{{ .HelmReleaseVersion }}"
+    resourceVersion: "{{ .ResourceVersion }}"
+    uid: {{ .SecretUID }}
+    creationTimestamp: "{{ .CreationTimestamp }}"
+  type: helm.sh/release.v1
+  data:
+    release: {{ .HelmReleaseData | b64encode }}

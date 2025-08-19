@@ -32,3 +32,4 @@ terraform/variables.tf
 
 /auth_service/alembic/env.py
 
+**/map.md
