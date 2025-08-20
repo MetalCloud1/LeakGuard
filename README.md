@@ -1,5 +1,8 @@
-<h1 align="center">
+<h1 align="center" style="font-size:40px;">
  <b>⚒️MicroForge🗡️</b>
+ <p align="center"style="font-size:12px;"><em>
+<br> Kickstart your microservices projects with secure authentication,
+  <br>scalable services, automated CI/CD pipelines, and built-in monitoring.</em></p>
 </h1>
 
 
@@ -54,20 +57,15 @@ MicroForge provides a professional template with:
 <h2 id="architecture" align="center">
 🏗️Architecture
 </h2>
-
 ```mermaid
 ---
 config:
   theme: neo-dark
 ---
 flowchart TD
-
-  
   subgraph client_side["Client Side"]
     Client[Client]
   end
-
-  
   subgraph auth_service["Auth Service"]
     Auth[Auth Service - FastAPI]
     DB[PostgreSQL - RDS]
@@ -75,43 +73,34 @@ flowchart TD
     Auth --> DB
     Auth -. internal .- JWT
   end
-
-  
   subgraph monitoring["Monitoring"]
     Loki[Loki]
     Prom[Prometheus]
     Grafana[Grafana]
     Prom --> Grafana
   end
-
-  
   subgraph microservices["Microservices"]
     TemplateSvc[Template Service Demo]
     UsersAPI[Users API - Scaffold Service]
     PaymentsAPI[Payments API]
     More(Adittional Services)
   end
-
-  
   Client --> Auth
   Auth -->|Logs JSON - Loguru| Loki
   Auth -->|Metrics - /metrics| Prom
-
   Client --> TemplateSvc
   TemplateSvc --> UsersAPI
   TemplateSvc --> PaymentsAPI
   TemplateSvc -. scale out .-> More
-
 ```
 
 <h2 id="folder-structure" align="center">
 📂Folder Structure
 </h2>
 
-
 <details>
   <summary>Cloud Microservices Overview</summary>
-```mermaid
+  ```mermaid
 flowchart TD
     cloud[Cloud Microservices]
     cloud --> github[.github]
@@ -120,14 +109,18 @@ flowchart TD
     cloud --> terraform[terraform]
     cloud --> user_api[user_api]
     cloud --> gitignore[.gitignore]
-</details> 
+```
+</details>
 
 <details> <summary>.github</summary>
+ ```mermaid
 flowchart TD
     workflows --> ci_cd[ci-cd.yaml]
-</details> 
+```
+</details>
 
-<details> <summary>Auth Service</summary>
+ <details> <summary>Auth Service</summary>
+```mermaid
 flowchart TD
     subgraph auth_service
         subgraph alembic
@@ -135,7 +128,6 @@ flowchart TD
             env_template[env-template.py]
             readme_alembic[README]
         end
-
         subgraph infra
             subgraph auth_iam
                 subgraph auth_iam_policies
@@ -147,20 +139,17 @@ flowchart TD
                     trust_policies --> trust_policy
                 end
             end
-
             subgraph auth_k8s_dev
                 deployment_dev[deployment-dev.yaml]
                 namespace_dev[namespace-dev.yaml]
                 service_dev[service-dev.yaml]
                 serviceAccount_dev[serviceAccount-dev.yaml]
             end
-
             subgraph auth_dev_db
                 secret_db[secret-db-dev-template.yaml]
                 service_db[service-db-dev.yaml]
                 statefulset_db[statefulSet-db-dev.yaml]
             end
-
             subgraph auth_prod_templates
                 deployment_prod[deployment-prod-template.yaml]
                 namespace_prod[namespace-prod-template.yaml]
@@ -168,7 +157,6 @@ flowchart TD
                 serviceAccount_prod[serviceAccount-prod.yaml]
             end
         end
-
         subgraph src
             init_src[__init__.py]
             auth_py[auth.py]
@@ -179,22 +167,20 @@ flowchart TD
             schemas_py[schemas.py]
             utils_py[utils.py]
         end
-
         subgraph tests
             init_tests[__init.py__]
             conftest[conftest.py]
             test_endpoints[test_endpoints.py]
         end
-
         alembic_ini[alembic.ini]
         requirements_test[requirements-test.txt]
         requirements[requirements.txt]
         terraform_secret[terraform-secret-template.json]
     end
-</details> 
-
+```
+</details>
 <details> <summary>Monitoring</summary>
-
+```mermaid
 flowchart TD
     subgraph monitoring
         subgraph grafana
@@ -204,7 +190,6 @@ flowchart TD
             secret_grafana[template-secre-t.yaml]
             service_grafana[service-grafana.yaml]
         end
-
         subgraph loki
             configmap_loki[configmap-loki.yaml]
             deployment_loki[deployments-loki.yaml]
@@ -214,7 +199,6 @@ flowchart TD
             service_loki[service-loki.yaml]
             values_loki[values.yaml]
         end
-
         subgraph prometheus
             configmaps_prometheus[configmaps-prometheus.yaml]
             deployment_prometheus[deployment-prometheus.yaml]
@@ -225,9 +209,11 @@ flowchart TD
             service_monitor[service-monitor-dev.yaml]
         end
     end
-</details> 
+```
+</details>
 
 <details> <summary>Terraform</summary>
+```mermaid
 flowchart TD
     subgraph terraform
         terraform_lock[.terraform.lock.hcl]
@@ -235,7 +221,11 @@ flowchart TD
         outputs_tf[outputs.tf]
         tfvars_example[terraform.tfvars.example]
     end
-</details> <details> <summary>User API</summary>
+```
+</details>
+
+<details> <summary>User API</summary>
+```mermaid
 flowchart TD
     subgraph user_api
         deployment_users[users-api-deployment.yaml]
@@ -246,15 +236,14 @@ flowchart TD
         dockerfile[Dockerfile]
         requirements_user[requirements.txt]
     end
-</details> ```
+```
+</details>
 
 <h2 id= "ci-cd-pipeline" align = "center">
 🔄CI/CD Pipeline
 </h2>
 
-
 ```mermaid
-
 ---
 config:
   theme: neo-dark
@@ -281,7 +270,6 @@ flowchart TD
     CI/CD --> checkout_cd
     checkout --> setup_python --> install_deps --> lint --> wait_pg --> run_tests --> build_docker
     checkout_cd --> aws_login --> docker_login --> build_push --> terraform_apply
-
 ```
 
 <h2 id="microservices" align = "center">
@@ -309,7 +297,6 @@ Roadmap📍
 </h2>
 
 ```mermaid
-
 ---
 config:
   theme: neo-dark
