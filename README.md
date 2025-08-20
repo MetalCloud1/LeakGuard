@@ -56,7 +56,6 @@ MicroForge provides a professional template with:
 </h2>
 
 ```mermaid
-
 ---
 config:
   theme: neo-dark
@@ -109,21 +108,27 @@ flowchart TD
 📂Folder Structure
 </h2>
 
+
+<details>
+  <summary>Cloud Microservices Overview</summary>
 ```mermaid
----
-config:
-  theme: neo-dark
----
 flowchart TD
-    cloud[Cloud-Microservices]
+    cloud[Cloud Microservices]
+    cloud --> github[.github]
+    cloud --> auth_service[auth_service]
+    cloud --> monitoring[monitoring]
+    cloud --> terraform[terraform]
+    cloud --> user_api[user_api]
+    cloud --> gitignore[.gitignore]
+</details> 
 
-    %% .github
-    subgraph github[.github]
-        workflows --> ci_cd[ci-cd.yaml]
-    end
-    cloud --> github
+<details> <summary>.github</summary>
+flowchart TD
+    workflows --> ci_cd[ci-cd.yaml]
+</details> 
 
-    %% auth_service
+<details> <summary>Auth Service</summary>
+flowchart TD
     subgraph auth_service
         subgraph alembic
             versions[versions]
@@ -186,113 +191,62 @@ flowchart TD
         requirements[requirements.txt]
         terraform_secret[terraform-secret-template.json]
     end
-    cloud --> auth_service
+</details> 
 
-    %% monitoring (Grafana, Loki, Prometheus)
-    subgraph monitoring[monitoring]
-        %% grafana
+<details> <summary>Monitoring</summary>
+
+flowchart TD
+    subgraph monitoring
         subgraph grafana
-            subgraph grafana_k8s
-                subgraph grafana_configmaps
-                    configmap_grafana[configmap-grafana.yaml]
-                end
-                subgraph grafana_deployments
-                    deployment_grafana[deployment-grafana.yaml]
-                end
-                subgraph grafana_pvc
-                    pvc_grafana[pvc-grafana.yaml]
-                end
-                subgraph grafana_template-secrets
-                    secret_grafana[template-secre-t.yaml]
-                end
-                subgraph grafana_services
-                    service_grafana[service-grafana.yaml]
-                end
-            end
+            configmap_grafana[configmap-grafana.yaml]
+            deployment_grafana[deployment-grafana.yaml]
+            pvc_grafana[pvc-grafana.yaml]
+            secret_grafana[template-secre-t.yaml]
+            service_grafana[service-grafana.yaml]
         end
 
-        %% loki
         subgraph loki
-            subgraph loki_k8s
-                subgraph loki_configmaps
-                    configmap_loki[configmap-loki.yaml]
-                end
-                subgraph loki_deployments
-                    deployment_loki[deployments-loki.yaml]
-                    statefulset_loki[statefulset-loki.yaml]
-                end
-                subgraph loki_pvc
-                    pvc_loki[pvc-loki.yaml]
-                end
-                subgraph loki_template-secrets
-                    secret_loki[template-secre-t.yaml]
-                end
-                subgraph loki_services
-                    service_loki[service-loki.yaml]
-                end
-                values_loki[values.yaml]
-            end
+            configmap_loki[configmap-loki.yaml]
+            deployment_loki[deployments-loki.yaml]
+            statefulset_loki[statefulset-loki.yaml]
+            pvc_loki[pvc-loki.yaml]
+            secret_loki[template-secre-t.yaml]
+            service_loki[service-loki.yaml]
+            values_loki[values.yaml]
         end
 
-        %% prometheus
         subgraph prometheus
-            subgraph prometheus_k8s
-                subgraph prometheus_configmaps
-                    configmaps_prometheus[configmaps-prometheus.yaml]
-                end
-                subgraph prometheus_deployments
-                    deployment_prometheus[deployment-prometheus.yaml]
-                end
-                subgraph prometheus_pvc
-                    pvc_prometheus[pvc-prometheus.yaml]
-                end
-                subgraph prometheus_template-secrets
-                    secret_prometheus[template-secre-t.yaml]
-                end
-                subgraph prometheus_services
-                    service_prometheus[service-prometheus.yaml]
-                end
-                prometheus_rbac[prometheus-rbac.yaml]
-                service_monitor[service-monitor-dev.yaml]
-            end
+            configmaps_prometheus[configmaps-prometheus.yaml]
+            deployment_prometheus[deployment-prometheus.yaml]
+            pvc_prometheus[pvc-prometheus.yaml]
+            secret_prometheus[template-secre-t.yaml]
+            service_prometheus[service-prometheus.yaml]
+            prometheus_rbac[prometheus-rbac.yaml]
+            service_monitor[service-monitor-dev.yaml]
         end
     end
-    cloud --> monitoring
+</details> 
 
-    %% terraform
+<details> <summary>Terraform</summary>
+flowchart TD
     subgraph terraform
         terraform_lock[.terraform.lock.hcl]
         main_tf[main.tf]
         outputs_tf[outputs.tf]
         tfvars_example[terraform.tfvars.example]
     end
-    cloud --> terraform
-
-    %% user-api
+</details> <details> <summary>User API</summary>
+flowchart TD
     subgraph user_api
-        subgraph user_k8s
-            deployment_users[users-api-deployment.yaml]
-            service_users[users-api-service.yaml]
-        end
-
-        subgraph user_src
-            main_user[main.py]
-        end
-
-        subgraph user_tests
-            init_user[__init__.py]
-            test_health[test_health.py]
-        end
-
+        deployment_users[users-api-deployment.yaml]
+        service_users[users-api-service.yaml]
+        main_user[main.py]
+        init_user[__init__.py]
+        test_health[test_health.py]
         dockerfile[Dockerfile]
         requirements_user[requirements.txt]
     end
-    cloud --> user_api
-
-    gitignore[.gitignore]
-    cloud --> gitignore
-
-```
+</details> ```
 
 <h2 id= "ci-cd-pipeline" align = "center">
 🔄CI/CD Pipeline
