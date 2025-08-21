@@ -1,0 +1,32 @@
+---
+config:
+  theme: neo-dark
+---
+flowchart TD
+    subgraph Monitoring
+        subgraph Grafana
+            configmap_grafana[configmap-grafana.yaml]
+            deployment_grafana[deployment-grafana.yaml]
+            pvc_grafana[pvc-grafana.yaml]
+            secret_grafana[template-secre-t.yaml]
+            service_grafana[service-grafana.yaml]
+        end
+        subgraph Loki
+            configmap_loki[configmap-loki.yaml]
+            deployment_loki[deployments-loki.yaml]
+            statefulset_loki[statefulset-loki.yaml]
+            pvc_loki[pvc-loki.yaml]
+            secret_loki[template-secre-t.yaml]
+            service_loki[service-loki.yaml]
+            values_loki[values.yaml]
+        end
+        subgraph Prometheus
+            configmaps_prometheus[configmaps-prometheus.yaml]
+            deployment_prometheus[deployment-prometheus.yaml]
+            pvc_prometheus[pvc-prometheus.yaml]
+            secret_prometheus[template-secre-t.yaml]
+            service_prometheus[service-prometheus.yaml]
+            prometheus_rbac[prometheus-rbac.yaml]
+            service_monitor[service-monitor-dev.yaml]
+        end
+    end
