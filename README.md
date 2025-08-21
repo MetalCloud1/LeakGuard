@@ -157,7 +157,7 @@ export SENDER_PASSWORD=<your_email_password>
 uvicorn src.main:app --reload --port 8000
 ```
 
-Test endpoints using cURL or Postman (/register, /verify-email, /token, /users/me).
+Test endpoints using `cURL` or Postman (`/register`, `/verify-email`, `/token`, /`users/me`).
 
 <h2 id="notes" align = "center">
 📝Notes
