@@ -26,7 +26,7 @@ This workflow provides automated **Continuous Integration (CI) and Continuous De
 </div>
 
 <h2 id="workflow-triggers" align="center">
-Workflow Triggers
+▶️Workflow Triggers
 </h2>
 
 This workflow runs on:
@@ -37,7 +37,7 @@ This workflow runs on:
 > 💡 **Technical Note**: CI and CD are separated. CI runs automatically to validate code quality and test coverage. CD is manual to prevent automatic deployment to production without approval.
 
 <h2 id="environment-variables" align="center">
-Environment Variables
+🛠️Environment Variables
 </h2>
 
 ```bash
@@ -57,7 +57,7 @@ env:
 * Database connection string and other service-specific configuration are injected via   environment variables for flexibility.
 
 <h2 id="ci-job" align="center">
-CI Job
+🧪CI Job
 </h2>
 
 **Purpose:** Test and validate code before merging to main branches.
@@ -82,7 +82,7 @@ CI Job
 
 
 <h2 id="cd-job" align="center">
-CD Job
+☁️CD Job
 </h2>
 
 **Purpose:** Deploy tested services to AWS and update Docker images in the registry. Triggered manually.
@@ -100,7 +100,7 @@ CD Job
 5. Navigate to Terraform configuration and run `terraform init` and `terraform apply`.
 
 <h2 id="usage-and-adaptation" align="center">
-Usage and Adaptation
+🌍 Usage and Adaptation
 </h2>
 
 * Adding new microservices: Add them to the `services` array in both CI and CD steps. Ensure dependencies and test scripts exist.
