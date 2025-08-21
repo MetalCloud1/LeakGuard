@@ -15,29 +15,29 @@
 
 ❗ Version: **_initial/primitive_** (may contain minor issues).</p>
 
-<h2 id="table-of-content" align="center">
+<h1 id="table-of-content" align="center">
 📋Table Of Content
-</h2>
-<div align="center" style="font-size:17px;">
+</h1>
+<div style="font-size:20px;">
 <ol>
 
-1.[🔍Project Overview](#project-overview)
+1. [🔍Project Overview](#project-overview)
 
-2.[🏗️Architecture](#architecture)
+2. [🏗️Architecture](#architecture)
 
-3.[📂Folder Structure](#folder-structure)
+3. [📂Folder Structure](#folder-structure)
 
-4.[🔄CI/CD Pipeline](#ci-cd-pipeline)
+4. [🔄CI/CD Pipeline](#ci-cd-pipeline)
 
-5.[📦Microservices](#microservices)
+5. [📦Microservices](#microservices)
 
-6.[🛰️Observability](#observability)
+6. [🛰️Observability](#observability)
 
-7.[📍Roadmap](#roadmap)
+7. [📍Roadmap](#roadmap)
 
-8.[⚡Quick Start](#quick-start)
+8. [⚡Quick Start](#quick-start)
 
-9.[📝Notes](#notes)
+9. [📝Notes](#notes)
 
 </ol>
 </div>
