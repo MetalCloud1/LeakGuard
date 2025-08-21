@@ -1,6 +1,7 @@
 <h1 align="center">
  <b>CI/CD Pipeline - MicroForge🗡️</b>
 </h1>
+
 This workflow provides automated **Continuous Integration (CI) and Continuous Deployment (CD)** for the MicroForge template, covering the core microservices: `auth_service` and `users-api`. It is designed to ensure that any changes pushed to `dev` or pull requests targeting `main` or `dev` are automatically tested, linted, and optionally deployed to AWS with Docker images and Terraform-managed infrastructure.<br><br>
 
 > 💡 **Note:** This workflow is modular and configurable. It can be extended to additional services or environments without breaking the existing pipeline.
