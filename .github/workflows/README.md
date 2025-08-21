@@ -38,16 +38,22 @@ This workflow runs on:
 <h2 id="environment-variables" align="center">
 Environment Variables
 </h2>
-```yaml
+
+```bash
 env:
   AWS_REGION: us-west-2
 ```
 
-*`AWS_REGION`: Default AWS region for deployments.
-*Additional secrets are loaded during CD using GitHub Secrets:
-*`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`
-*`DOCKER_USERNAME`, `DOCKER_PASSWORD`
-*Database connection string and other service-specific configuration are injected via   environment variables for flexibility.
+* `AWS_REGION`: Default AWS region for deployments.
+
+
+* Additional secrets are loaded during CD using GitHub Secrets:
+
+  * `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`
+
+  * `DOCKER_USERNAME`, `DOCKER_PASSWORD`
+
+* Database connection string and other service-specific configuration are injected via   environment variables for flexibility.
 
 <h2 id="ci-job" align="center">
 CI Job
@@ -57,14 +63,22 @@ CI Job
 
 **Key Steps:**
 
-1.Checkout repository using `actions/checkout@v3`.
-2.Setup Python 3.11 environment.
-3.Install dependencies for all services.
-4.Run linter (`flake8`) on all source code.
-5.Launch temporary PostgreSQL container for tests.
-6.Wait until PostgreSQL is ready.
-7.Run unit tests with `pytest` and list test files for logging.
-8.Build Docker images locally for all services (`auth_service` and `users-api`).
+1. Checkout repository using `actions/checkout@v3`.
+
+2. Setup Python 3.11 environment.
+
+3. Install dependencies for all services.
+
+4. Run linter (`flake8`) on all source code.
+
+5. Launch temporary PostgreSQL container for tests.
+
+6. Wait until PostgreSQL is ready.
+
+7. Run unit tests with `pytest` and list test files for logging.
+
+8. Build Docker images locally for all services (`auth_service` and `users-api`).
+
 
 <h2 id="cd-job" align="center">
 CD Job

@@ -42,7 +42,7 @@
 </ol>
 </div>
 
-<h2 id="project-overview" align="center">🔍Project Overview</h2>
+<h1 id="project-overview" align="center">🔍Project Overview</h1>
 
 MicroForge is a professional microservices template including:
 
@@ -163,6 +163,6 @@ Test endpoints using cURL or Postman (/register, /verify-email, /token, /users/m
 📝Notes
 </h2>
 
-***📌Version**: Initial, may contain minor issues. The focus is on providing a robust template for microservices, infrastructure, and observability, not a polished production-ready system yet.
+* **📌Version**: Initial, may contain minor issues. The focus is on providing a robust template for microservices, infrastructure, and observability, not a polished production-ready system yet.
 
-*📌**MicroForge** is designed to be extensible, scalable, and professional, allowing developers to focus on creating new services without worrying about infrastructure complexity.
+* 📌**MicroForge** is designed to be extensible, scalable, and professional, allowing developers to focus on creating new services without worrying about infrastructure complexity.
