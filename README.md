@@ -5,6 +5,9 @@
   <br>scalable services, automated CI/CD pipelines, and built-in monitoring.</em></p>
 </h1>
 
+![Build Status](https://img.shields.io/github/actions/workflow/status/MetalCloud1/Authentication-Service/ci-cd.yaml)
+![Version](https://img.shields.io/badge/version-latest-blue)
+> ⚠️ Currently using `latest`. Version 2.0 will remove `latest` and provide a fixed release.
 
 **MicroForge** is a cloud-native microservices template designed to provide developers with a fully functional, scalable, and organized infrastructure foundation. It includes key components like monitoring, Terraform-based IaC, environment management, CI/CD, and essential microservices. The goal is to allow developers to focus on creating, updating, and extending services without the complexity of setting up the underlying infrastructure.
 <p align="center">
@@ -40,7 +43,7 @@
 
 <h2 id="project-overview" align="center">🔍Project Overview</h2>
 
-MicroForge provides a professional template with:
+MicroForge is a professional microservices template including:
 
 * **Infrastructure as Code**: Terraform manages PostgreSQL RDS, AWS Secrets Manager, and    Kubernetes resources.
 
@@ -72,7 +75,7 @@ MicroForge provides a professional template with:
 
 <h2 align="center">2️⃣Repository Workflows</h2>
 <p align="center">
-  <img src="docs\diagrams\diagrams-svg-files\repository-workflows.svg" width="600"/>
+  <img src="docs\diagrams\diagrams-svg-files\repository-workflows.svg" width="400"/>
 </p>
 
 <h2 align="center">3️⃣Auth_Service</h2>
