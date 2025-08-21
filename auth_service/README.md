@@ -29,7 +29,7 @@ It is designed to be **modular**, **secure**, and **extensible**, serving as the
 </h2>
 
 <p align="center">
-  <img src="\docs\diagrams\diagrams-svg-files\auth-service.svg" width="600"/>
+  <img src="\cloud-microServices\docs\diagrams\diagrams-svg-files\auth-service.svg" width="600"/>
 </p>
 
 <h2 id="endpoints" align="center">
