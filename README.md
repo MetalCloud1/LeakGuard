@@ -65,32 +65,32 @@ MicroForge provides a professional template with:
 📂Project Structure
 </h1>
 
-<h2 align="center">Project Overview</h2>
+<h2 align="center">1️⃣Project Overview</h2>
 <p align="center">
   <img src="docs\diagrams\diagrams-svg-files\Project-Overview.svg" width="600"/>
 </p>
 
-<h2 align="center">Repository Workflows</h2>
+<h2 align="center">2️⃣Repository Workflows</h2>
 <p align="center">
   <img src="docs\diagrams\diagrams-svg-files\repository-workflows.svg" width="600"/>
 </p>
 
-<h2 align="center">Auth_Service</h2>
+<h2 align="center">3️⃣Auth_Service</h2>
 <p align="center">
   <img src="docs\diagrams\diagrams-svg-files\auth-service.svg" width="600"/>
 </p>
 
-<h2 align="center">Monitoring</h2>
+<h2 align="center">4️⃣Monitoring</h2>
 <p align="center">
   <img src="docs\diagrams\diagrams-svg-files\monitoring.svg" width="600"/>
 </p>
 
-<h2 align="center">Terraform</h2>
+<h2 align="center">5️⃣Terraform</h2>
 <p align="center">
   <img src="docs\diagrams\diagrams-svg-files\terraform.svg" width="600"/>
 </p>
 
-<h2 align="center">Template Service</h2>
+<h2 align="center">6️⃣Template-Service</h2>
 <p align="center">
   <img src="docs\diagrams\diagrams-svg-files\demo-service.svg" width="600"/>
 </p>
