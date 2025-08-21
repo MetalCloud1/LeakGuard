@@ -117,17 +117,6 @@ Minimal, fully functional scaffold service that can be copied and extended. Demo
 🛰️Observability
 </h1>
 
-***Prometheus**: Metrics from FastAPI endpoints (`/metrics`) via `prometheus_fastapi_instrumentator`.
-
-***Grafana**: Dashboards for latency, throughput, errors, ready to deploy via Helm.
-
-***Loki**: JSON structured logs via Loguru for advanced querying.
-
-<h2 align="center">RoadMap</h2>
-<p align="center">
-  <img src="docs\diagrams\diagrams-svg-files\roadmap.svg" width="600"/>
-</p>
-
 * **Prometheus**: Metrics from FastAPI endpoints (`/metrics`) via `prometheus_fastapi_instrumentator`.
 
 * **Grafana**: Dashboards for latency, throughput, errors, ready to deploy via Helm.
@@ -137,12 +126,9 @@ Minimal, fully functional scaffold service that can be copied and extended. Demo
 <h1 id="roadmap" align="center">
 Roadmap📍
 </h1>
-
-<h2 align="center">RoadMap</h2>
 <p align="center">
   <img src="docs\diagrams\diagrams-svg-files\roadmap.svg" width="600"/>
 </p>
-
 
 <h1 id="quick-start" align = "center">
 ⚡Quick Start
