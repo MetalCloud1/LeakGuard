@@ -5,7 +5,7 @@
   <br>scalable services, automated CI/CD pipelines, and built-in monitoring.</em></p>
 </h1>
 
-![Build Status](https://img.shields.io/github.com/MetalCloud1/Authentication-Service/blob/dev/.github/workflows/ci-cd.yaml)
+![Build Status](https://img.shields.io/github/actions/workflow/status/MetalCloud1/Authentication-Service/blob/dev/.github/workflows/ci-cd.yaml)
 ![Version](https://img.shields.io/badge/version-latest-blue)
 > ⚠️ Currently using `latest`. Version 2.0 will remove `latest` and provide a fixed release.
 
