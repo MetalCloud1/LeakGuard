@@ -1,5 +1,5 @@
 <h1 align="center">
-Terraform — Infrastructure for MicroForge (infra/terraform)
+Terraform — Infrastructure for MicroForge (MicroForge/terraform)
 </h1>
 
 This README explains what the provided Terraform configuration does, how to use it, and important operational / security notes. It's written to be practical and ready for an open-source template: clear commands, examples, and recommendations so contributors can provision the required AWS + Kubernetes resources for the MicroForge stack.
