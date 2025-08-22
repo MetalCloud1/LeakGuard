@@ -1,7 +1,7 @@
-<h1 align="center">
+<h1 align="center" style = "font-size:35px">
  <b> Alembic  
   </b>
-  
+
 <b> `env-template` Guide </b>
 </h1>
 
