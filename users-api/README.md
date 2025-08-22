@@ -44,7 +44,7 @@ Goal: provide a minimal, working **Docker image + Kubernetes manifests + basic t
 Build the Docker image:
 
 ```bash
-# from repo root
+#repo root
 docker build -t youruser/users-api:dev .
 ```
 Run it locally (map port 80 inside container to 8000 on host):
