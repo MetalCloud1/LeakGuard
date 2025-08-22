@@ -202,6 +202,14 @@ Troubleshooting
 
   * Confirm Promtail `pipeline_stages.json` expressions match field names exactly.
 
+<h2 align="center">
+Architecture Diagram
+</h2>
+
+<p align="center">
+  <img src="..\docs\diagrams\diagrams-svg-files\monitoring-rdme.svg" width="600"/>
+</p>
+
 <h2 align = "center">
 Scaling & production notes
 </h2>
