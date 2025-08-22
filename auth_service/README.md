@@ -67,17 +67,35 @@ Refresh an expired access token using a refresh token.
 Register a new user (can be disabled in production for security).
 
 <h2 id="testing" align="center">
-🧪Testing
+
+🧪Advanced Testing
+
 </h2>
 
-The service is fully testable using **pytest**.
+The service includes a robust testing suite using `pytest` and `httpx` for asynchronous HTTP testing.
 
-Run all tests:
+**Test Coverage**
+
+* Health check endpoint: verifies service is running.
+
+* User registration & email verification: tests registration flow and email confirmation using `unittest.mock.patch` to mock outgoing emails.
+
+* Login & authentication: tests login flow and protected routes with JWT tokens.
+
+**Fixtures**
+
+* `async_client` – provides an `AsyncClient` for HTTP requests to the FastAPI app.
+
+* `db_session` – provides an async SQLAlchemy session for database interaction in tests.
+
+* `test_db_session` – isolated session for integration tests.
+
+* `block_network_requests` – prevents real external HTTP requests during tests to ensure deterministic test behavior.
+
+Example Test Run:
 
 ```bash
-{
   pytest tests/ --disable-warnings
-}
 ```
 
 * **Unit tests ensure password hashing**, JWT creation/validation, and role enforcement work correctly.
@@ -85,6 +103,41 @@ Run all tests:
 * **Integration tests** verify interactions with the database and API endpoints.
 
 * **Load testing** can be performed with `locust` or `k6` to measure performance under heavy authentication traffic.
+
+<h2 id="docker-image" align="center"> 
+
+🐳 Docker Image 
+
+</h2>
+
+The service is **Dockerized** for easy deployment:
+
+```dockerfile
+FROM python:3.10-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN apt-get update && apt-get install -y build-essential libpq-dev gcc
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY src/ ./src
+COPY alembic.ini .
+COPY alembic/ ./alembic/
+
+EXPOSE 8000
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+* Uses **Python 3.10 slim** image for minimal footprint.
+
+* Installs necessary build tools for async PostgreSQL driver (`asyncpg`).
+
+* Copies source code and Alembic migrations.
+
+* Exposes port `8000` for FastAPI.
+
+> **Note:** The Dockerfile is straightforward, and the tests are run outside the container. CI/CD pipelines can integrate test execution in separate steps before building the image.
 
 <h2 id="security-considerations" align="center">
 🔒Security Considerations
