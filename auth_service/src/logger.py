@@ -4,7 +4,7 @@ import sys
 logger.remove()
 logger.add(
     sys.stdout,
-    serialize=True,  # JSON para que Loki pueda parsear
+    serialize=True,
     level="INFO",
     enqueue=True,
 )

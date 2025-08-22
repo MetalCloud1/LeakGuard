@@ -22,6 +22,6 @@ Base = declarative_base()
 def get_db():
     db: Session = SessionLocal()
     try:
-        yield db   # <- se inyecta en la dependencia de los endpoints
+        yield db
     finally:
         db.close()
