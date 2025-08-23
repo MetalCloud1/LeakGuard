@@ -1,0 +1,47 @@
+---
+config:
+  theme: redux-dark-color
+---
+sequenceDiagram
+    autonumber
+    participant Client
+    participant FastAPI as AuthService
+    participant DB as Database
+    participant Email as EmailService
+    participant Token as JWT
+    Client->>FastAPI: POST /register {username, email, password}
+    FastAPI->>DB: SELECT User WHERE username/email exists?
+    DB-->>FastAPI: Return None / existing user
+    alt New User
+        FastAPI->>DB: INSERT new User with hashed_password + verification_token
+        DB-->>FastAPI: User created
+        FastAPI->>Email: send_email(verification link)
+        Email-->>Client: Email sent
+        FastAPI-->>Client: {"msg": "User registered successfully"}
+    else User exists
+        FastAPI-->>Client: HTTP 400, "Username/Email already registered"
+    end
+    Client->>FastAPI: GET /verify-email?token=abc
+    FastAPI->>DB: SELECT User WHERE verification_token=abc
+    DB-->>FastAPI: Return User
+    FastAPI->>DB: UPDATE User is_verified=True, verification_token=None
+    DB-->>FastAPI: User updated
+    FastAPI-->>Client: {"msg": "Email verified successfully"}
+    Client->>FastAPI: POST /token {username, password}
+    FastAPI->>DB: SELECT User WHERE username
+    DB-->>FastAPI: Return User
+    FastAPI->>FastAPI: authenticate_user(password)
+    alt Valid credentials
+        FastAPI->>Token: create_access_token({sub: username})
+        Token-->>FastAPI: JWT token
+        FastAPI-->>Client: {"access_token": "...", "token_type": "bearer"}
+    else Invalid credentials
+        FastAPI-->>Client: HTTP 401, "Invalid credentials"
+    end
+    Client->>FastAPI: GET /users/me (Bearer token)
+    FastAPI->>Token: decode_token_return_username(token)
+    Token-->>FastAPI: username
+    FastAPI->>DB: SELECT User WHERE username
+    DB-->>FastAPI: Return User
+    
+    FastAPI-->>Client: User info (UserOut)
