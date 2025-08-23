@@ -1,0 +1,32 @@
+---
+config:
+  theme: neo
+  layout: elk
+---
+flowchart TB
+ subgraph PrometheusOperator["PrometheusOperator"]
+        Prometheus["Prometheus Operator"]
+        ServiceMonitor["ServiceMonitor for auth-service"]
+  end
+ subgraph AuthService["auth-service Pod"]
+        MetricsEndpoint[/"metrics on port metrics"/]
+        AppLogs["App logs - JSON"]
+  end
+ subgraph LokiStack["Loki Stack"]
+        Loki["Loki Server"]
+        Promtail["Promtail DaemonSet"]
+        Grafana["Grafana"]
+  end
+ subgraph subGraph3["K8s Cluster"]
+    direction TB
+        PrometheusOperator
+        AuthService
+        LokiStack
+  end
+    ServiceMonitor --> Prometheus
+    AuthService -- logs --> Promtail
+    Promtail --> Loki
+    Grafana -- query logs --> Loki
+    Grafana -- query metrics --> Prometheus
+    AuthService --> subGraph3
+    AuthService -- expose metrics --> PrometheusOperator

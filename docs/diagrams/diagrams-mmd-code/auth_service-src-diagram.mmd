@@ -1,0 +1,24 @@
+---
+config:
+  theme: neo
+  layout: elk
+---
+flowchart TB
+ subgraph AuthService["Auth Service - main.py"]
+    direction TB
+        HealthCheck[/"GET /health"/]
+        Register[/"POST /register"/]
+        VerifyEmail[/"GET /verify-email"/]
+        Login[/"POST /token"/]
+        Me[/"GET /users/me"/]
+        Middleware["Middleware: log_requests"]
+        Limiter["Rate Limiter: 5 requests/min"]
+        DB["Async DB (SQLAlchemy AsyncSession)"]
+        JWT["JWT encode/decode"]
+        Email["send_email()"]
+  end
+    HealthCheck --> Middleware
+    Register --> Middleware & DB & Email
+    VerifyEmail --> Middleware & DB
+    Login --> Middleware & DB & JWT & Limiter
+    Me --> Middleware & DB & JWT

@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Local Secrets
+*.env
+*.key
+*.pem
+*.crt
+secrets/
+
+# Logs and temp
+*.log
+tmp/
+
+# K8s YAML prod
+**/infra/k8s/[Pp]rod/
+**/infra/k8s/prod
+*secret*.yaml
+#Terraform
+terraform/.terraform/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/variables.tf
+
+.vscode/
+
+**/secret.json
+
+**/infra/iam/iam-policies
+
+/auth_service/alembic/env.py
+

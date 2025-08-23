@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: {{ .AppSecretName }}
+    namespace: {{ .Namespace }}
+    labels:
+      app: {{ .AppName }}
+      app.kubernetes.io/managed-by: Helm
+      chart: {{ .AppChart }}
+      heritage: Helm
+      release: {{ .AppRelease }}
+    annotations:
+      meta.helm.sh/release-name: {{ .AppRelease }}
+      meta.helm.sh/release-namespace: {{ .Namespace }}
+    resourceVersion: "{{ .ResourceVersion }}"
+    uid: {{ .SecretUID }}
+    creationTimestamp: "{{ .CreationTimestamp }}"
+  type: Opaque
+  data:
+    config.yaml: {{ .AppConfig | b64encode | default "" }}
+
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: {{ .DBSecretName }}
+    namespace: {{ .Namespace }}
+    labels:
+      app.kubernetes.io/name: {{ .DBAppName }}
+      app.kubernetes.io/instance: {{ .DBInstance }}
+      app.kubernetes.io/managed-by: Helm
+      helm.sh/chart: {{ .DBChart }}
+    annotations:
+      meta.helm.sh/release-name: {{ .DBRelease }}
+      meta.helm.sh/release-namespace: {{ .Namespace }}
+    resourceVersion: "{{ .ResourceVersion }}"
+    uid: {{ .SecretUID }}
+    creationTimestamp: "{{ .CreationTimestamp }}"
+  type: Opaque
+  data:
+    db-user: {{ .DBUser | b64encode | default "" }}
+    db-password: {{ .DBPassword | b64encode | default "" }}
+    db-host: {{ .DBHost | b64encode | default "" }}
+    db-port: {{ .DBPort | b64encode | default "" }}
+    db-name: {{ .DBName | b64encode | default "" }}
+
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: sh.helm.release.v1.{{ .AppRelease }}.v{{ .AppReleaseVersion }}
+    namespace: {{ .Namespace }}
+    labels:
+      modifiedAt: "{{ .ModifiedAt }}"
+      name: {{ .AppRelease }}
+      owner: helm
+      status: deployed
+      version: "{{ .AppReleaseVersion }}"
+    resourceVersion: "{{ .ResourceVersion }}"
+    uid: {{ .SecretUID }}
+    creationTimestamp: "{{ .CreationTimestamp }}"
+  type: helm.sh/release.v1
+  data:
+    release: {{ .HelmReleaseData | b64encode | default "" }}

@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: {{ .LokiSecretName }}
+    namespace: {{ .Namespace }}
+    labels:
+      app: loki
+      app.kubernetes.io/managed-by: Helm
+      chart: {{ .LokiChart }}
+      heritage: Helm
+      release: {{ .LokiRelease }}
+    annotations:
+      meta.helm.sh/release-name: {{ .LokiRelease }}
+      meta.helm.sh/release-namespace: {{ .Namespace }}
+    resourceVersion: "{{ .ResourceVersion }}"
+    uid: {{ .SecretUID }}
+    creationTimestamp: "{{ .CreationTimestamp }}"
+  type: Opaque
+  data:
+    loki.yaml: {{ .LokiConfig | b64encode }}
+
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: {{ .LokiGrafanaSecretName }}
+    namespace: {{ .Namespace }}
+    labels:
+      app.kubernetes.io/name: grafana
+      app.kubernetes.io/instance: {{ .GrafanaInstance }}
+      app.kubernetes.io/managed-by: Helm
+      helm.sh/chart: {{ .GrafanaChart }}
+    annotations:
+      meta.helm.sh/release-name: {{ .GrafanaRelease }}
+      meta.helm.sh/release-namespace: {{ .Namespace }}
+    resourceVersion: "{{ .ResourceVersion }}"
+    uid: {{ .SecretUID }}
+    creationTimestamp: "{{ .CreationTimestamp }}"
+  type: Opaque
+  data:
+    admin-user: {{ .AdminUser | b64encode }}
+    admin-password: {{ .AdminPassword | b64encode }}
+    ldap-toml: {{ .LDAPToml | b64encode | default "" }}
+
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: sh.helm.release.v1.{{ .LokiRelease }}.v{{ .LokiReleaseVersion }}
+    namespace: {{ .Namespace }}
+    labels:
+      modifiedAt: "{{ .ModifiedAt }}"
+      name: {{ .LokiRelease }}
+      owner: helm
+      status: deployed
+      version: "{{ .LokiReleaseVersion }}"
+    resourceVersion: "{{ .ResourceVersion }}"
+    uid: {{ .SecretUID }}
+    creationTimestamp: "{{ .CreationTimestamp }}"
+  type: helm.sh/release.v1
+  data:
+    release: {{ .HelmReleaseData | b64encode }}

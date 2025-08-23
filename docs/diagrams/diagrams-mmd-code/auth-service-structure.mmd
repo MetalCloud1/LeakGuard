@@ -1,0 +1,50 @@
+---
+config:
+  theme: neo-dark
+  layout: dagre
+---
+flowchart TD
+ subgraph Alembic["Migrations (Alembic)"]
+        versions["Versions"]
+        env_template["env-template.py"]
+        readme_alembic["README"]
+  end
+ subgraph IAM["IAM Policies"]
+        policies["Policies"]
+        trust["Trust Policies"]
+  end
+ subgraph K8sDev["Kubernetes (Dev)"]
+        deploy_dev["Deployment"]
+        svc_dev["Service"]
+        db_dev["Dev Database"]
+  end
+ subgraph K8sProd["Kubernetes (Prod Templates)"]
+        deploy_prod["Deployment Template"]
+        svc_prod["Service Template"]
+        db_prod["Prod Database"]
+  end
+ subgraph Infra["Infrastructure"]
+        IAM
+        K8sDev
+        K8sProd
+  end
+ subgraph Source["Source Code"]
+        main["main.py"]
+        auth["auth.py"]
+        db["database.py"]
+        models["models.py"]
+        schemas["schemas.py"]
+        utils["utils.py"]
+  end
+ subgraph Tests["Tests"]
+        conftest["conftest.py"]
+        endpoints["test_endpoints.py"]
+  end
+ subgraph AuthService["Auth Service (FastAPI + PostgreSQL)"]
+        Alembic
+        Infra
+        Source
+        Tests
+  end
+    Source --> Alembic & Infra & Tests
+    Infra --> IAM & K8sDev & K8sProd

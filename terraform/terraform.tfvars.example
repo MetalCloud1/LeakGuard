@@ -1,0 +1,18 @@
+# terraform.tfvars.example
+
+aws_region        = "<your-aws-region>"
+eks_cluster_name  = "<your-eks-cluster-name>"
+namespace         = "<your-kubernetes-namespace>"
+iam_role_arn      = "<your-iam-role-arn>"
+aws_secret_name   = "<your-aws-secret-name>"
+
+db_instance_class = "<your-db-instance-class>"
+db_name           = "<your-database-name>"
+db_storage        = <your-db-storage-size>
+db_multi_az       = <true-or-false>
+db_username       = "<your-db-username>"
+db_password       = "<your-db-password>"
+
+app_image         = "<your-app-docker-image>"
+app_replicas      = <number-of-replicas>
+app_port          = <app-port-number>
