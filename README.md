@@ -1,145 +1,219 @@
-<h1 align="center" style="font-size:40px;">
+<h1 id="microforge" align="center" style="font-size:40px;">
  <b>⚒️MicroForge🗡️</b>
- <p align="center"style="font-size:12px;"><em>
+ <p align="center" style="font-size:12px;"><em>
 <br> Kickstart your microservices projects with secure authentication,
   <br>scalable services, automated CI/CD pipelines, and built-in monitoring.</em></p>
 </h1>
 
-[![CI/CD](https://github.com/MetalCloud1/Authentication-Service/actions/workflows/ci-cd.yaml/badge.svg?branch=dev)](https://github.com/MetalCloud1/MicroForge/actions/workflows/ci-cd.yaml)
+[![CI/CD](https://github.com/MetalCloud1/Authentication-Service/actions/workflows/ci-cd.yaml/badge.svg?branch=dev)](https://github.com/MetalCloud1/MicroForge/actions/workflows/ci-cd.yaml) \
+![Version](https://img.shields.io/badge/version-latest-blue) \
+![Python](https://img.shields.io/badge/python-3.11+-blue) \
+![Docker](https://img.shields.io/badge/docker-ready-blue) \
+![Coverage](https://img.shields.io/badge/coverage---%25-lightgrey)
 
-![Version](https://img.shields.io/badge/version-latest-blue)
-> ⚠️ Currently using `latest`. Version 2.0 will remove `latest` and provide a fixed release.
+> ⚠️ Currently using `latest`. Version **2.0** will remove `latest` and provide fixed releases.
 
 **MicroForge** is a cloud-native microservices template designed to provide developers with a fully functional, scalable, and organized infrastructure foundation. It includes key components like monitoring, Terraform-based IaC, environment management, CI/CD, good testing and mocking practices, and essential microservices. The goal is to allow developers to focus on creating, updating, and extending services without the complexity of setting up the underlying infrastructure.
-<p align="center">
 
-❗ Version: **_initial/primitive_** (may contain minor issues).</p>
+<p align="center">❗ Version: **_initial/primitive_** (may contain minor issues).</p>
 
-<h1 id="table-of-content" align="center">
-📋Table Of Content
-</h1>
-<div style="font-size:20px;">
+<hr/>
+
+<h1 id="table-of-content" align="center">📋 Table Of Content</h1>
+
 <ol>
 
-1. [🔍Project Overview](#project-overview)
+  <li><a href="#project-overview">🔍 Project Overview</a></li>
 
-2. [🏗️Architecture](#architecture)
+  <li><a href="#architecture">🏗️ Architecture</a></li>
 
-3. [📂Folder Structure](#folder-structure)
+  <li><a href="#folder-structure">📂 Folder Structure</a></li>
 
-4. [🔄CI/CD Pipeline](#ci-cd-pipeline)
+  <li><a href="#ci-cd-pipeline">🔄 CI/CD Pipeline</a></li>
 
-5. [📦Microservices](#microservices)
+  <li><a href="#microservices">📦 Microservices</a></li>
 
-6. [🛰️Observability](#observability)
+  <li><a href="#observability">🛰️ Observability</a></li>
 
-7. [📍Roadmap](#roadmap)
+  <li><a href="#roadmap">📍 Roadmap</a></li>
 
-8. [⚡Quick Start](#quick-start)
+  <li><a href="#quick-start">⚡ Quick Start</a></li>
 
-9. [📝Notes](#notes)
+  <li><a href="#run-everything-localdemo">🏃 Run everything (local/demo)</a></li>
+
+  <li><a href="#testing--ci-details">🧪 Testing & CI details</a></li>
+
+  <li><a href="#contributing--license">🤝 Contributing & License</a></li>
+
+  <li><a href="#pre-publish-checklist">✅ Pre-publish checklist</a></li>
+
+  <li><a href="#notes">📝 Notes</a></li>
 
 </ol>
-</div>
 
-<h1 id="project-overview" align="center">🔍Project Overview</h1>
+<hr/>
 
+<h1 id="project-overview" align="center">
+
+🔍 Project Overview
+
+</h1>
+
+<p>
 MicroForge is a professional microservices template including:
+</p>
 
-* **Infrastructure as Code**: Terraform manages PostgreSQL RDS, AWS Secrets Manager, and    Kubernetes resources.
+<ul>
+  <li><strong>Infrastructure as Code</strong>: Terraform manages PostgreSQL RDS, AWS Secrets Manager, and Kubernetes resources.</li>
+  <li><strong>Kubernetes Deployments</strong>: Deployments, Services, Namespaces, ServiceAccounts, OIDC/IAM roles (IRSA).</li>
+  <li><strong>CI/CD</strong>: GitHub Actions workflows for automated testing, linting, building Docker images, and optional deployment to AWS.</li>
+  <li><strong>Security</strong>: Environment-specific secrets, AWS Secrets Manager integration, and secure password hashing.</li>
+  <li><strong>Observability</strong>: Prometheus metrics, Loki JSON logs, Grafana dashboards ready for use.</li>
+  <li><strong>Microservices</strong>: <code>auth_service</code> with full authentication flow, and <code>users-api</code> as a minimal, reusable scaffold service.</li>
+</ul>
 
-* **Kubernetes Deployments**: Deployments, Services, Namespaces, ServiceAccounts, OIDC/IAM roles (IRSA).
-
-* **CI/CD**: GitHub Actions workflows for automated testing, linting, building Docker images, and manual deployment to AWS.
-
-* **Security**: Environment-specific secrets, AWS Secrets Manager integration, and secure password hashing.
-
-* **Observability**: Prometheus metrics, Loki JSON logs, Grafana dashboards ready for use.
-
-* **Microservices**: `auth_service` with full authentication flow, and `users-api` as a minimal, reusable scaffold service.
+<hr/>
 
 <h1 id="architecture" align="center">
-🏗️Architecture
+
+🏗️ Architecture
+
 </h1>
+
 <p align="center">
-  <img src="\docs\diagrams\diagrams-svg-files\ProjectArchitecture.svg" width="600"/>
+  <img src="docs/diagrams/diagrams-svg-files/ProjectArchitecture.svg" width="600" alt="Project Architecture"/>
 </p>
+
+<hr/>
 
 <h1 id="folder-structure" align="center">
-📂Project Structure
+
+📂 Project Structure
+
 </h1>
 
-<h2 align="center">1️⃣Project Overview</h2>
-<p align="center">
-  <img src="docs\diagrams\diagrams-svg-files\Project-Overview.svg" width="600"/>
-</p>
+<h2 id="project-overview-diagram" align="center">
 
-<h2 align="center">2️⃣Repository Workflows</h2>
-<p align="center">
-  <img src="docs\diagrams\diagrams-svg-files\repository-workflows.svg" width="400"/>
-</p>
+1️⃣ Project Overview
 
-<h2 align="center">3️⃣Auth_Service</h2>
-<p align="center">
-  <img src="docs\diagrams\diagrams-svg-files\auth-service.svg" width="600"/>
-</p>
+</h2>
 
-<h2 align="center">4️⃣Monitoring</h2>
-<p align="center">
-  <img src="docs\diagrams\diagrams-svg-files\monitoring.svg" width="600"/>
-</p>
+<p align="center"><img src="docs/diagrams/diagrams-svg-files/Project-Overview.svg" width="600" alt="Project Overview"/></p>
 
-<h2 align="center">5️⃣Terraform</h2>
-<p align="center">
-  <img src="docs\diagrams\diagrams-svg-files\terraform.svg" width="600"/>
-</p>
+<h2 id="repo-workflows" align="center">
 
-<h2 align="center">6️⃣Template-Service</h2>
-<p align="center">
-  <img src="docs\diagrams\diagrams-svg-files\demo-service.svg" width="600"/>
-</p>
+2️⃣ Repository Workflows
 
-<h1 id= "ci-cd-pipeline" align = "center">
-🔄CI/CD Pipeline
+</h2>
+
+<p align="center"><img src="docs/diagrams/diagrams-svg-files/repository-workflows.svg" width="400" alt="Workflows"/></p>
+
+<h2 id="auth-service-diagram" align="center">
+
+3️⃣ Auth Service
+
+</h2>
+
+<p align="center"><img src="docs/diagrams/diagrams-svg-files/auth-service.svg" width="600" alt="Auth Service"/></p>
+
+<h2 id="monitoring-diagram" align="center">
+
+4️⃣ Monitoring
+
+</h2>
+
+<p align="center"><img src="docs/diagrams/diagrams-svg-files/monitoring.svg" width="600" alt="Monitoring"/></p>
+
+<h2 id="terraform-diagram" align="center">
+
+5️⃣ Terraform
+
+</h2>
+
+<p align="center"><img src="docs/diagrams/diagrams-svg-files/terraform.svg" width="600" alt="Terraform"/></p>
+
+<h2 id="demo-service-diagram" align="center">
+
+6️⃣ Template / Demo Service
+
+</h2>
+
+<p align="center"><img src="docs/diagrams/diagrams-svg-files/demo-service.svg" width="600" alt="Demo Service"/></p>
+
+<hr/>
+
+<h1 id="ci-cd-pipeline" align="center">
+
+🔄 CI/CD Pipeline
+
 </h1>
 
 <p align="center">
-  <img src="docs\diagrams\diagrams-svg-files\PipelineCI-CD.svg" width="600"/>
+  <img src="docs/diagrams/diagrams-svg-files/PipelineCI-CD.svg" width="600" alt="CI/CD Pipeline"/>
 </p>
 
-<h1 id="microservices" align = "center">
-📦Microservices
-</h1>
+<p><strong>Workflow summary</strong>:</p>
+<ol>
+  <li><code>lint</code> → static checks (ruff / mypy / black)</li>
+  <li><code>test</code> → unit + integration tests (<code>pytest</code>)</li>
+  <li><code>build</code> → Docker image build & tag</li>
+  <li><code>publish</code> → push image to registry (optional)</li>
+  <li><code>deploy</code> → manual/automated deployment to staging/production</li>
+</ol>
 
-* **Auth Service** (`auth_service`)
-Provides full authentication functionality including user registration, email verification, JWT-based login, and secure password handling.
+<hr/>
 
-* **Users API** (`users-api`)
-Minimal, fully functional scaffold service that can be copied and extended. Demonstrates microservice structure, Kubernetes deployment, and basic endpoint (`/health`).
+<h1 id="microservices" align="center">📦 Microservices</h1>
 
-<h1 id="observability" align = "center">
-🛰️Observability
-</h1>
+<ul>
+  <li><strong>Auth Service (<code>auth_service</code>)</strong> — Full authentication flow: registration, email verification, JWT login/refresh, password hashing, user management.</li>
+  <li><strong>Users API (<code>users-api</code>)</strong> — Minimal scaffold service: health endpoint, basic CRUD layout, designed to be copied & extended.</li>
+</ul>
 
-* **Prometheus**: Metrics from FastAPI endpoints (`/metrics`) via `prometheus_fastapi_instrumentator`.
+<hr/>
 
-* **Grafana**: Dashboards for latency, throughput, errors, ready to deploy via Helm.
+<h1 id="observability" align="center">🛰️ Observability</h1>
 
-* **Loki**: JSON structured logs via Loguru for advanced querying.
+<ul>
+  <li><strong>Prometheus</strong> — instrumented FastAPI metrics via <code>prometheus_fastapi_instrumentator</code>.</li>
+  <li><strong>Grafana</strong> — dashboards (latency, throughput, errors) provided as JSON; ready to be provisioned via Helm.</li>
+  <li><strong>Loki</strong> — structured JSON logs using <code>loguru</code> for advanced log queries.</li>
+</ul>
+
+<hr/>
 
 <h1 id="roadmap" align="center">
-Roadmap📍
+📍 Roadmap
 </h1>
-<p align="center">
-  <img src="docs\diagrams\diagrams-svg-files\roadmap.svg" width="600"/>
-</p>
 
-<h1 id="quick-start" align = "center">
-⚡Quick Start
-</h1>
+<p align="center"><img src="docs/diagrams/diagrams-svg-files/roadmap.svg" width="600" alt="Roadmap"/></p>
+
+<p><strong>Planned near-term improvements:</strong></p>
+<ul>
+  <li>2.0: pin releases (no <code>latest</code>), streamline Helm charts for demo deploys</li>
+  <li>Add OAuth2 / social login options</li>
+  <li>Add alerting rules for Prometheus + Grafana alertmanager</li>
+  <li>Harden Terraform modules; add automated IaC tests</li>
+</ul>
+
+<hr/>
+
+<h1 id="quick-start" align="center">⚡ Quick Start</h1>
+
+<h2 id="prerequisites" align="center">Pre-requisites</h2>
+
+<ul>
+  <li>Docker & Docker Compose (for local/demo)</li>
+  <li>Python 3.11+</li>
+  <li>PostgreSQL (local or managed) — or use the provided Docker image</li>
+  <li><code>kubectl</code>, <code>helm</code> (if testing Kubernetes/Helm flows)</li>
+  <li>(Optional) AWS CLI + credentials for Terraform / real deployments</li>
+</ul>
+
+<h2 id="service-local" align="center">Local dev (service-level)</h2>
 
 ```bash
-git clone <repo_url>
+git clone https://github.com/MetalCloud1/MicroForge.git
 cd MicroForge/auth_service
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt -r requirements-test.txt
@@ -151,35 +225,140 @@ export POSTGRES_HOST=localhost
 export SECRET_KEY=dev_secret
 export SENDER_EMAIL=<your_email>
 export SENDER_PASSWORD=<your_email_password>
-```
 
-```python
 uvicorn src.main:app --reload --port 8000
 ```
 
-Test endpoints using `cURL` or Postman (`/register`, `/verify-email`, `/token`, /`users/me`).
+Test endpoints using curl or Postman: `/register`, `/verify-email`, `/token`, `/users/me`.
 
-<h2 id="notes" align = "center">
-📝Notes
+<hr/>
+
+<h1 id="run-everything-localdemo" align="center">🏃 Run everything (local / demo)</h1>
+
+<p>Two recommended ways to bring the stack up quickly for demo/testing:</p>
+
+<h2 id="docker-compose-demo" align="center">
+1) Docker Compose (quick demo)
 </h2>
 
-* **📌Version**: Initial, may contain minor issues. The focus is on providing a robust template for microservices, infrastructure, and observability, not a polished production-ready system yet.
+<p>Use the included demo compose to run core services locally (Postgres, auth_service, users-api, Prometheus, Loki, Grafana):</p>
 
-* 📌**MicroForge** is designed to be extensible, scalable, and professional, allowing developers to focus on creating new services without worrying about infrastructure complexity.
+```bash
+docker-compose -f docker/docker-compose.demo.yml up --build -d
+```
 
-## License & Usage Notice
+<p><em>Notes:</em></p> <ul> <li><code>docker/docker-compose.demo.yml</code> is opinionated for local demos and uses ephemeral storage.</li> <li>Use <code>.env.example</code> as a template for environment variables; copy to <code>.env</code> and edit before running.</li> </ul> 
 
-This project is a **template created by Gilbert Ramírez** ([GitHub](https://github.com/MetalCloud1)).
+<h2 id="k8s-helm-demo" align="center">2) Kubernetes / Helm (more realistic)</h2>
 
-**License:** CC BY-NC-ND (custom) – see [LICENSE.md](./LICENSE.md) for full details.
+ <p>Use Helm to deploy a more production-like environment with monitoring and services:</p>
 
-You are free to:
-- View, study, and analyze this project.
-- Use it for educational purposes, inspiration, or as a template for your own projects.
-- **Modify, extend, or enhance the project. Substantial modifications that add new functionality or transform the project may be used as your own work, as long as the original template is properly acknowledged**.
+```bash
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
 
-You are **not allowed** to:
-- Claim the original template as entirely your own work in resumes, portfolios, or any public representation without prior notice to the author.
-- Sell, redistribute, or deploy the original template commercially without consent.
+helm upgrade --install loki-stack grafana/loki-stack -n monitoring -f monitoring/values.yaml --create-namespace
 
-> ⚠️ Please respect the author's attribution and license when using this template.
+helm upgrade --install prom-stack prometheus-community/kube-prometheus-stack -n monitoring -f monitoring/prometheus-values.yaml
+```
+
+<p>Use the extracted <code>values.yaml</code> files in the <code>monitoring/</code> directory for consistency with your current deployment.</p> <hr/> 
+
+<h1 
+id="testing--ci-details" align="center">
+
+🧪 Testing & CI details
+
+</h1> 
+
+<h2 id="run-tests" align="center">
+
+Run tests locally
+
+</h2>
+
+```bash
+pytest -q
+
+pytest --cov=src --cov-report=term-missing
+```
+<h2 id="linting" align="center">
+Linting / static checks
+</h2>
+
+```bash
+ruff check .
+black --check .
+mypy src
+```
+
+<h2 id="ci-workflow" align="center">CI pipeline (GitHub Actions)
+</h2> 
+
+<p>The repo includes a GitHub Actions workflow that runs on PRs and pushes to <code>dev</code>/<code>main</code>. Flow:</p> <ul> <li><code>on: pull_request</code> → run lint + tests</li> <li><code>on: push: branches: [dev]</code> → build docker images, run integration tests</li> <li>Manual promotion → tag release & deploy</li> </ul> <hr/> 
+
+<h1 id="contributing--license" align="center">
+
+🤝 Contributing & License
+
+</h1> 
+
+<h2 id="contributing" align="center">
+
+Contributing (short)
+
+</h2> 
+
+<p>This template is intended for learning, inspiration, and building new projects. If you'd like to contribute improvements:</p> <ul> <li>Open an issue describing the change / improvement.</li> <li>Send a PR against the <code>dev</code> branch.</li> <li>Respect the license: contact the author before public redistribution or claiming work as your own.</li> </ul> 
+
+<h2 id="license" align="center">License (short)</h2> 
+
+<p>This project is a <strong>template created by Gilbert Ramírez</strong> (GitHub: <a href="https://github.com/MetalCloud1">
+https://github.com/MetalCloud1</a>).
+
+</p> <p><strong>License:</strong> CC BY-NC-ND (custom) — full terms in <code>LICENSE.md</code>.
+
+</p> <p><strong>You may:</strong></p> 
+
+<ul> <li>View, study, and use this template for personal, educational, or inspiration purposes.</li> 
+
+<li>Modify or extend it; substantial transformations that add new functionality may be used as your own work <strong>if you properly acknowledge the original template</strong>.</li> 
+
+</ul> <p><strong>You may NOT:
+
+</strong></p> <ul> <li>Claim the original template as entirely your own in resumes/portfolios without prior notice to the author.</li> <li>Sell, redistribute, or deploy the original template commercially without consent.</li> </ul> <p>
+
+<strong>Author:</strong> Gilbert Ramírez (<a href="https://github.com/MetalCloud1">GitHub</a>)</p> <hr/> 
+
+<h1 id="pre-publish-checklist" align="center">
+
+✅ Pre-publish checklist</h1> 
+
+<ul> <li>[ ] README finalized and screenshots/diagrams included</li> 
+
+<li>[ ] LICENSE.md present</li> 
+
+<li>[ ] <code>.gitignore</code> reviewed for secrets / private keys</li> 
+
+<li>[ ] Local secrets removed</li>
+
+ <li>[ ] Commits author/email consistent (<code>MetalCloud1</code> / <code>gilbertoismael5555@gmail.com</code>)</li>
+
+  <li>[ ] Branch protection: protect <code>main</code>, require PR reviews, CI checks</li> 
+
+  <li>[ ] Optional: <code>CONTRIBUTING.md</code>, <code>CODE_OF_CONDUCT.md</code>, <code>SECURITY.md</code>
+  </li> </ul> <hr/> 
+
+
+  <h1 id="notes" align="center">
+
+  📝 Notes
+
+  </h1> <ul> 
+
+  <li>Focus: robust template for microservices, infrastructure, observability.</li> 
+
+  <li>Docker Compose demo is ephemeral; use Kubernetes & Helm for realistic deployments.</li> 
+
+  <li>Consider enabling GitHub Template to signal reusability.</li> </ul> 
