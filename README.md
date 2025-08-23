@@ -10,7 +10,7 @@
 ![Version](https://img.shields.io/badge/version-latest-blue)
 > ⚠️ Currently using `latest`. Version 2.0 will remove `latest` and provide a fixed release.
 
-**MicroForge** is a cloud-native microservices template designed to provide developers with a fully functional, scalable, and organized infrastructure foundation. It includes key components like monitoring, Terraform-based IaC, environment management, CI/CD, and essential microservices. The goal is to allow developers to focus on creating, updating, and extending services without the complexity of setting up the underlying infrastructure.
+**MicroForge** is a cloud-native microservices template designed to provide developers with a fully functional, scalable, and organized infrastructure foundation. It includes key components like monitoring, Terraform-based IaC, environment management, CI/CD, good testing and mocking practices, and essential microservices. The goal is to allow developers to focus on creating, updating, and extending services without the complexity of setting up the underlying infrastructure.
 <p align="center">
 
 ❗ Version: **_initial/primitive_** (may contain minor issues).</p>
