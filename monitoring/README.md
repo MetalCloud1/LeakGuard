@@ -280,6 +280,6 @@ Final checklist before production
  ## License
  
  This project is licensed under **CC BY-NC-ND (custom)**.  
- See [LICENSE.md](./LICENSE.md) for full details.
+ See [LICENSE.md](../LICENSE.md) for full details.
  
  > ⚠️ Please respect the author's attribution and license when using this template.

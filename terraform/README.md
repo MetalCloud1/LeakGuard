@@ -335,6 +335,6 @@ aws secretsmanager get-secret-value --secret-id "<name>" --region us-west-2 --qu
 ## License
 
 This project is licensed under **CC BY-NC-ND (custom)**.  
-See [LICENSE.md](./LICENSE.md) for full details.
+See [LICENSE.md](../LICENSE.md) for full details.
 
 > ⚠️ Please respect the author's attribution and license when using this template.
