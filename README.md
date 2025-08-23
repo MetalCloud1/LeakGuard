@@ -166,3 +166,20 @@ Test endpoints using `cURL` or Postman (`/register`, `/verify-email`, `/token`, 
 * **📌Version**: Initial, may contain minor issues. The focus is on providing a robust template for microservices, infrastructure, and observability, not a polished production-ready system yet.
 
 * 📌**MicroForge** is designed to be extensible, scalable, and professional, allowing developers to focus on creating new services without worrying about infrastructure complexity.
+
+## License & Usage Notice
+
+This project is a **template created by Gilbert Ramírez** ([GitHub](https://github.com/MetalCloud1)).
+
+**License:** CC BY-NC-ND (custom) – see [LICENSE.md](./LICENSE.md) for full details.
+
+You are free to:
+- View, study, and analyze this project.
+- Use it for educational purposes, inspiration, or as a template for your own projects.
+- **Modify, extend, or enhance the project. Substantial modifications that add new functionality or transform the project may be used as your own work, as long as the original template is properly acknowledged**.
+
+You are **not allowed** to:
+- Claim the original template as entirely your own work in resumes, portfolios, or any public representation without prior notice to the author.
+- Sell, redistribute, or deploy the original template commercially without consent.
+
+> ⚠️ Please respect the author's attribution and license when using this template.

@@ -199,3 +199,10 @@ Future Enhancements</h2>
 
 
 * 📊Audit logging for login attempts and suspicious activity.
+
+## License
+
+This project is licensed under **CC BY-NC-ND (custom)**.  
+See [LICENSE.md](./LICENSE.md) for full details.
+
+> ⚠️ Please respect the author's attribution and license when using this template.

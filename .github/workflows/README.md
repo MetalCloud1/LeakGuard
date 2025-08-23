@@ -110,3 +110,10 @@ env:
 * Secrets management: Always use GitHub Secrets for sensitive information. Avoid hardcoding credentials or keys in YAML.
 
 * Image tagging: Replace `latest` with versioned tags for reproducible deployments.
+
+## License
+
+This project is licensed under **CC BY-NC-ND (custom)**.  
+See [LICENSE.md](./LICENSE.md) for full details.
+
+> ⚠️ Please respect the author's attribution and license when using this template.

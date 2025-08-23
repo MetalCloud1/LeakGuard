@@ -35,3 +35,10 @@
 
 Not every diagram is explained individually here, since this folder contains many.  
 They are intended as **visual references** for workflows, CI/CD pipelines, and system components.
+
+## License
+
+This project is licensed under **CC BY-NC-ND (custom)**.  
+See [LICENSE.md](./LICENSE.md) for full details.
+
+> ⚠️ Please respect the author's attribution and license when using this template.

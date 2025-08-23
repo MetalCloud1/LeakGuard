@@ -17,8 +17,6 @@ Sequence Diagram
 
 </p>
 
-</h2>
-
 
 <h2>
 
@@ -147,3 +145,9 @@ Main flow of `main.py`
 * **Structured logging** allows easy tracing of requests.
 
 
+## License
+
+This project is licensed under **CC BY-NC-ND (custom)**.  
+See [LICENSE.md](./LICENSE.md) for full details.
+
+> ⚠️ Please respect the author's attribution and license when using this template.

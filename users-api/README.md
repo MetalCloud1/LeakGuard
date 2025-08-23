@@ -216,3 +216,10 @@ This microservice template is intentionally tiny and practical:
 * **Focus:** ease-of-copy & modify; minimal opinionated infra.
 
 * **Next steps:** replace `src/` with your logic, update manifests, build image, deploy.
+
+## License
+
+This project is licensed under **CC BY-NC-ND (custom)**.  
+See [LICENSE.md](./LICENSE.md) for full details.
+
+> ⚠️ Please respect the author's attribution and license when using this template.

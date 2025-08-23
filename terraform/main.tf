@@ -1,3 +1,8 @@
+# -----------------------------------------------------------------------------
+# Template created by GitHub: https://github.com/MetalCloud1
+# Licensed under CC BY-NC-ND (custom) – see LICENSE.md for details
+# Free to use for personal, work, educational, or inspiration purposes with prior notice
+# -----------------------------------------------------------------------------
 provider "aws" {
   region = var.aws_region
 }

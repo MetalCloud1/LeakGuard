@@ -143,3 +143,10 @@ docker run -d --name auth-service \
 * Always test migrations on a dev database before applying to production.
 
 * Avoid committing sensitive keys; use environment variables or AWS Secrets Manager.
+
+## License
+
+This project is licensed under **CC BY-NC-ND (custom)**.  
+See [LICENSE.md](./LICENSE.md) for full details.
+
+> ⚠️ Please respect the author's attribution and license when using this template.

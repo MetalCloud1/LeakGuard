@@ -182,6 +182,41 @@ Troubleshooting
 
 </h2>
 
+* **Grafana Loki pod CrashLoop (loki-grafana)**
+
+  * If the Grafana pod that depends on Loki enters a CrashLoop on startup:
+```bash
+kubectl get pods -n monitoring
+# Wait until the main Loki pod is Running
+kubectl delete pod loki-grafana-<id> -n monitoring
+```
+> This forces Kubernetes to recreate the Grafana pod after Loki is ready.
+Important: Since the resources are managed by Helm, this procedure is safe and does not break the configuration. No manual manifest modifications are needed.
+
+ * **Datasource isDefault: true multiple error (prometheus-operator-grafana-<"id"> CrashLoopBackOf**)
+
+      If Grafana shows the error:
+
+ ```vbnet
+Error: ✗ *provisioning.ProvisioningServiceImpl run error: Datasource provisioning error: datasource.yaml config is invalid. Only one datasource per organization can be marked as default
+ ```
+  * This happens when multiple ConfigMaps have isDefault: true.
+
+  * Solution: leave only one datasource as default (recommended: Prometheus).
+
+  * To fix and prevent it:
+
+```bash
+# Check configmaps
+kubectl get configmap -n monitoring
+
+# If changes are needed, update via Helm
+helm upgrade <release> grafana/grafana -f values.yaml -n monitoring
+# Ensure only one datasource has isDefault: true
+```
+
+> Do not manually modify persistent ConfigMaps; Helm maintains consistency and prevents this issue from recurring.
+
 * **Grafana not showing Loki datasource / empty logs**
 
   * `kubectl -n monitoring get pods` → check `promtail`, `loki`, `grafana` pod status.
@@ -241,3 +276,10 @@ Final checklist before production
  * [ ] Validate Prometheus target discovery in Prometheus UI.
 
  * [ ] Create Grafana dashboards and export them as JSON for repo-managed dashboards.
+
+ ## License
+ 
+ This project is licensed under **CC BY-NC-ND (custom)**.  
+ See [LICENSE.md](./LICENSE.md) for full details.
+ 
+ > ⚠️ Please respect the author's attribution and license when using this template.
