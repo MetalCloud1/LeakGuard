@@ -2,7 +2,7 @@
 import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import patch
-from password_checker_service import app
+from password_checker_service.src_pcs.app import app
 
 client = TestClient(app)
 
@@ -11,7 +11,7 @@ def test_health_check():
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
 
-@patch("password_checker_service.main.decode_token_return_username")
+@patch("password_checker_service.src_pcs.app.decode_token_return_username")
 def test_check_password_valid_token(mock_decode):
     mock_decode.return_value = "testuser"
     
@@ -25,7 +25,7 @@ def test_check_password_valid_token(mock_decode):
     assert isinstance(json_resp["leaked"], bool)
     assert isinstance(json_resp["times"], int)
 
-@patch("password_checker_service.main.decode_token_return_username")
+@patch("password_checker_service.src_pcs.app.decode_token_return_username")
 def test_check_password_invalid_token(mock_decode):
     mock_decode.return_value = None
     

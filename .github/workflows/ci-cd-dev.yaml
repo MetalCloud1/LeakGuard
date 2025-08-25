@@ -51,7 +51,7 @@ jobs:
         run: |
           flake8 auth_service/src
           flake8 users-api/src
-          flake8 password_checker_service/src-pcs
+          flake8 password_checker_service/src_pcs
 
       - name: Wait for PostgreSQL
         run: |
@@ -66,7 +66,7 @@ jobs:
       - name: Run all tests
         env:
           DATABASE_URL: postgresql+asyncpg://testuser:testpass@localhost:5432/testdb
-          PYTHONPATH: ${{ github.workspace }}/auth_service/src:${{ github.workspace }}/password_checker_service/src
+          PYTHONPATH: ${{ github.workspace }}/auth_service/src:${{ github.workspace }}/password_checker_service/src_pcs
         run: |
           python -m pytest auth_service/tests -vv --disable-warnings
           python -m pytest users-api/tests -vv --disable-warnings

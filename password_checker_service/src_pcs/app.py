@@ -16,11 +16,23 @@ AUTH_SERVICE_URL = os.environ.get("AUTH_SERVICE_URL", "http://auth-service")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+LEAKED_PATH = os.path.join(
+    BASE_DIR,
+    "..",
+    "infra",
+    "json",
+    "leaked_passwords.json"
+)
+
+
 class PasswordRequest(BaseModel):
     password: str
 
 
-with open("leaked_passwords.json", "r") as f:
+with open(LEAKED_PATH, "r", encoding="utf-8") as f:
     leaked_passwords = json.load(f)
 
 
