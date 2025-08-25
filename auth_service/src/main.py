@@ -28,7 +28,6 @@ from src.logger import logger
 from uuid import uuid4
 from prometheus_fastapi_instrumentator import Instrumentator
 import secrets
-import os
 
 app = FastAPI()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
