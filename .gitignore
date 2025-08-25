@@ -32,3 +32,6 @@ terraform/variables.tf
 
 /auth_service/alembic/env.py
 
+/terraform
+
+/.github/workflows/ci-cd.yaml.disabled
