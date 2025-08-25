@@ -51,7 +51,7 @@ jobs:
         run: |
           flake8 auth_service/src
           flake8 users-api/src
-          flake8 password_checker_service/src
+          flake8 password_checker_service/src-pcs
 
       - name: Wait for PostgreSQL
         run: |
