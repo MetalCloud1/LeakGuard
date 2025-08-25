@@ -38,7 +38,9 @@ def send_email(to_email: str, subject: str, body: str):
         return
 
     if not SENDER_EMAIL or not SENDER_PASSWORD:
-        raise RuntimeError("SENDER_EMAIL and SENDER_PASSWORD must be set in production")
+        raise RuntimeError(
+            "SENDER_EMAIL and SENDER_PASSWORD must be set in production"
+        )
 
     smtp_server = "smtp.gmail.com"
     smtp_port = 587

@@ -1,0 +1,127 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+      - leakcheker
+  pull_request:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+  
+env:
+  AWS_REGION: us-west-2
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_dispatch'
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U testuser -d testdb"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r auth_service/requirements-test.txt
+          pip install -r auth_service/requirements.txt
+          pip install -r users-api/requirements.txt
+          pip install -r password_checker_service/requirements.txt
+
+      - name: Lint all services
+        run: |
+          flake8 auth_service/src
+          flake8 users-api/src
+          flake8 password_checker_service/src
+
+      - name: Wait for PostgreSQL
+        run: |
+          echo "Waiting for Postgres to be ready..."
+          for i in {1..20}; do
+            pg_isready -h localhost -p 5432 -U testuser -d testdb && break
+            echo "Postgres not ready yet..."
+            sleep 3
+          done
+          pg_isready -h localhost -p 5432 -U testuser -d testdb || exit 1
+
+      - name: Run all tests
+        env:
+          DATABASE_URL: postgresql+asyncpg://testuser:testpass@localhost:5432/testdb
+          PYTHONPATH: ${{ github.workspace }}/auth_service/src:${{ github.workspace }}/password_checker_service/src
+        run: |
+          python -m pytest auth_service/tests -vv --disable-warnings
+          python -m pytest users-api/tests -vv --disable-warnings
+          python -m pytest password_checker_service/tests -vv --disable-warnings
+
+      - name: List test files
+        run: |
+          echo "Listing test files:"
+          find auth_service/tests -name "*.py"
+          find users-api/tests -name "*.py"
+          find password_checker_service/tests -name "*.py"
+
+      - name: Build Docker images (local)
+        run: |
+          services=("auth_service" "users-api" "password-checker")
+          for service in "${services[@]}"; do
+            docker build -t gilbr/$service:latest $service/
+          done
+
+  cd:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build & Push Docker images
+        run: |
+          services=("auth_service" "users-api" "password_checker_service")
+          for service in "${services[@]}"; do
+            echo "Building $service"
+            docker build -t gilbr/$service:latest $service/
+            echo "Pushing $service"
+            docker push gilbr/$service:latest
+          done
+
+      - name: Terraform Init & Apply
+        run: |
+          cd infra/terraform
+          terraform init
+          terraform apply -auto-approve

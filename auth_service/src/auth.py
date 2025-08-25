@@ -14,6 +14,7 @@ from typing import Optional
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+
 def get_secret_key():
     environment = os.getenv("ENVIRONMENT", "development")
 
@@ -26,7 +27,7 @@ def get_secret_key():
         secret = json.loads(response["SecretString"])
         return secret["SECRET_KEY"]
     else:
-        # Para desarrollo local o testing
+
         return os.getenv("SECRET_KEY", "dummy_dev_key")
 
 
@@ -47,7 +48,9 @@ async def authenticate_user(db, username: str, password: str):
 def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
     SECRET_KEY = get_secret_key()
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    expire = datetime.utcnow() + (
+        expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
