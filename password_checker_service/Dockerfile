@@ -5,7 +5,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY src-pcs/ ./src_pcs
+COPY src_pcs/ ./src_pcs
 
 COPY infra/json/leaked_passwords.json ./leaked_passwords.json
 
