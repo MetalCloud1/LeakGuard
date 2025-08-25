@@ -1,0 +1,8 @@
+README.md
+setup.py
+src/auth_service.egg-info/PKG-INFO
+src/auth_service.egg-info/SOURCES.txt
+src/auth_service.egg-info/dependency_links.txt
+src/auth_service.egg-info/requires.txt
+src/auth_service.egg-info/top_level.txt
+tests/test_enpoints.py

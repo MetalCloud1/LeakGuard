@@ -16,7 +16,6 @@ revision: str = '32cceb7bc6db'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
-
 def upgrade():
     op.create_table(
         'users',
@@ -24,6 +23,8 @@ def upgrade():
         sa.Column('email', sa.String(), unique=True),
         sa.Column('full_name', sa.String()),
         sa.Column('hashed_password', sa.String()),
+        sa.Column('verification_token', sa.String(), nullable=True),
+        sa.Column('is_verified', sa.Boolean(), nullable=False, server_default='false')
     )
 
 def downgrade():

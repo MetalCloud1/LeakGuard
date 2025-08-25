@@ -1,11 +1,6 @@
-# -----------------------------------------------------------------------------
-# Template created by Gilbert Ramirez GitHub: https://github.com/MetalCloud1
-# Licensed under CC BY-NC-ND (custom) – see LICENSE.md for details
-# You may view, study, and modify this template.
-# Substantial modifications that add new functionality or transform the project
-# may be used as your own work, as long as the original template is properly
-# acknowledged.
-# -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------  
+# Gilbert Ramirez GitHub: https://github.com/MetalCloud1  
+# -----------------------------------------------------------------------------  
 import os
 import boto3
 import json
@@ -16,6 +11,8 @@ from datetime import datetime, timedelta
 from sqlalchemy.future import select
 from typing import Optional
 
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 def get_secret_key():
     environment = os.getenv("ENVIRONMENT", "development")
@@ -29,13 +26,8 @@ def get_secret_key():
         secret = json.loads(response["SecretString"])
         return secret["SECRET_KEY"]
     else:
+        # Para desarrollo local o testing
         return os.getenv("SECRET_KEY", "dummy_dev_key")
-
-
-ALGORITHM = "HS256"
-
-
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 async def get_user_by_username(db, username: str) -> Optional[User]:
@@ -52,12 +44,10 @@ async def authenticate_user(db, username: str, password: str):
     return user
 
 
-def create_access_token(data: dict, expires_delta: timedelta = None):
+def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
     SECRET_KEY = get_secret_key()
     to_encode = data.copy()
-    expire = datetime.utcnow() + (
-        expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    )
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -69,6 +59,5 @@ def decode_token_return_username(token: str) -> Optional[str]:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         return username
-
     except JWTError:
         return None

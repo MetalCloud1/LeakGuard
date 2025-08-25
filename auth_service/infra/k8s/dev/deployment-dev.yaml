@@ -44,6 +44,10 @@ spec:
                   key: password
             - name: POSTGRES_HOST
               value: postgres-service
+            - name: SENDER_EMAIL
+              value: devtest@example.com       # Para pruebas locales
+            - name: SENDER_PASSWORD
+              value: devpassword  
           readinessProbe:
             httpGet:
               path: /health

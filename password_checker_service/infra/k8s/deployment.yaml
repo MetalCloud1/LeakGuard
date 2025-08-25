@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: password-checker-deployment
+  namespace: auth-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: password-checker
+  template:
+    metadata:
+      labels:
+        app: password-checker
+        prometheus: "true"
+    spec:
+      containers:
+        - name: password-checker-container
+          image: gilbr/password-checker:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: AUTH_SERVICE_URL
+              value: "http://auth-service"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
