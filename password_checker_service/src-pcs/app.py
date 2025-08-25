@@ -24,7 +24,9 @@ with open("leaked_passwords.json", "r") as f:
     leaked_passwords = json.load(f)
 
 
-def decode_token_return_username(token: str, timeout: float = 3.0) -> Optional[str]:
+def decode_token_return_username(
+        token: str, timeout: float = 3.0
+        ) -> Optional[str]:
 
     if not token:
         return None
@@ -50,13 +52,15 @@ def decode_token_return_username(token: str, timeout: float = 3.0) -> Optional[s
 
 
 @app.post("/check-password")
-def check_password(request: PasswordRequest, token: str = Depends(oauth2_scheme)):
+def check_password(
+    request: PasswordRequest, token: str = Depends(oauth2_scheme)
+):
 
     username = decode_token_return_username(token)
     if not username:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token"
-        )
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token")
 
     sha1 = hashlib.sha1(request.password.encode("utf-8")).hexdigest().upper()
     times = leaked_passwords.get(sha1, 0)
