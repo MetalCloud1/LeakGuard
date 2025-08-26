@@ -44,13 +44,11 @@ jobs:
           pip install --upgrade pip
           pip install -r auth_service/requirements-test.txt
           pip install -r auth_service/requirements.txt
-          pip install -r users-api/requirements.txt
           pip install -r password_checker_service/requirements.txt
 
       - name: Lint all services
         run: |
           flake8 auth_service/src
-          flake8 users-api/src
           flake8 password_checker_service/src_pcs
 
       - name: Wait for PostgreSQL
@@ -69,19 +67,17 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}/auth_service/src:${{ github.workspace }}/password_checker_service/src_pcs
         run: |
           python -m pytest auth_service/tests -vv --disable-warnings
-          python -m pytest users-api/tests -vv --disable-warnings
           python -m pytest password_checker_service/tests -vv --disable-warnings
 
       - name: List test files
         run: |
           echo "Listing test files:"
           find auth_service/tests -name "*.py"
-          find users-api/tests -name "*.py"
           find password_checker_service/tests -name "*.py"
 
       - name: Build Docker images (local)
         run: |
-          services=("auth_service" "users-api" "password_checker_service")
+          services=("auth_service" "password_checker_service")
           for service in "${services[@]}"; do
             docker build -t gilbr/$service:latest $service/
           done
