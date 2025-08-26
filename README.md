@@ -1,371 +1,269 @@
-<h1 id="microforge" align="center" style="font-size:40px;">
- <b>⚒️MicroForge🗡️</b>
- </h1>
+<h1 align="center">🛡️ LeakGuard 🔐</h1>
 
- <p align="center" style="font-size:15px;">
- <em>
-Kickstart your microservices projects with secure authentication,
-scalable services, automated CI/CD pipelines, and built-in monitoring.
-</em></p>
 
-<p align="center" style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
-  <a href="https://github.com/MetalCloud1/MicroForge/actions/workflows/ci-cd.yaml">
-    <img src="https://github.com/MetalCloud1/Authentication-Service/actions/workflows/ci-cd.yaml/badge.svg?branch=dev" alt="CI/CD">
-  </a>
-  <img src="https://img.shields.io/badge/version-v1.0.0-blue" alt="Version">
-  <img src="https://img.shields.io/badge/python-3.11+-blue" alt="Python">
-  <img src="https://img.shields.io/badge/docker-ready-blue" alt="Docker">
-  <img src="https://img.shields.io/badge/coverage---%25-lightgrey" alt="Coverage">
-  <img src="https://img.shields.io/badge/template-ready-green" alt="Template">
-</p>
+*Quickly detect if your information (passwords, emails, etc.) has been compromised before it's too late.*
 
-<p align="center">🚀 Version 1.0 – stable release</p>
-<p align="center">❗ Note: initial/primitive release may contain minor issues.</p>
+[![Tests](https://github.com/MetalCloud1/leakguard/actions/workflows/tests.yaml/badge.svg)](https://github.com/MetalCloud1/leakguard/actions/workflows/tests.yaml)  
+![Python](https://img.shields.io/badge/python-3.11+-blue) ![Docker](https://img.shields.io/badge/docker-ready-blue) ![Status](https://img.shields.io/badge/status-demo-orange) ![Template](https://img.shields.io/badge/template--based--on-MicroForge-green)
 
-**MicroForge** is a cloud-native microservices template designed to provide developers with a fully functional, scalable, and organized infrastructure foundation. It includes key components like monitoring, Terraform-based IaC, environment management, CI/CD, good testing and mocking practices, and essential microservices. The goal is to allow developers to focus on creating, updating, and extending services without the complexity of setting up the underlying infrastructure.
+**Version 1.0 — demo release**  
+❗ Demo ready for testing. Production deployment optional and configurable.
 
-<hr/>
+---
 
-<h1 id="table-of-content" align="center">📋 Table Of Content</h1>
+## 🔍 Project Overview
 
-<ol>
+**LeakGuard** is a set of microservices focused on **early leak detection**.  
+It allows checking if passwords or other sensitive data appear in known breaches and sends alerts.  
+This repo uses the **MicroForge** template to accelerate implementation and enforce best practices.
 
-  <li><a href="#project-overview">🔍 Project Overview</a></li>
+Main components:
 
-  <li><a href="#architecture">🏗️ Architecture</a></li>
+- **Password Checker Service (`password_checker_service`)**: FastAPI app that checks passwords against the **Have I Been Pwned (HIBP)** public API using k-Anonymity (safe: full hash never sent).
+- **Auth Service (`auth_service`)**: user management (registration, email verification, JWT, protected endpoints, rate-limiting).
+- **PostgreSQL**: user persistence in Docker container (used by `auth_service`).
+- **Observability**: Prometheus + Loki + Grafana for metrics, logs, and dashboards.
+- **Testing & CI**: `pytest` + `unittest.mock` for deterministic tests; linters and formatters in CI.
 
-  <li><a href="#folder-structure">📂 Folder Structure</a></li>
+---
 
-  <li><a href="#ci-cd-pipeline">🔄 CI/CD Pipeline</a></li>
+## 🏗️ Architecture (summary)
 
-  <li><a href="#microservices">📦 Microservices</a></li>
-
-  <li><a href="#observability">🛰️ Observability</a></li>
-
-  <li><a href="#roadmap">📍 Roadmap</a></li>
-
-  <li><a href="#quick-start">⚡ Quick Start</a></li>
-
-  <li><a href="#run-everything-localdemo">🏃 Run everything (local/demo)</a></li>
-
-  <li><a href="#testing--ci-details">🧪 Testing & CI details</a></li>
-
-  <li><a href="#contributing--license">🤝 Contributing & License</a></li>
-
-  <li><a href="#pre-publish-checklist">✅ Pre-publish checklist</a></li>
-
-  <li><a href="#notes">📝 Notes</a></li>
-
-</ol>
-
-<hr/>
-
-<h1 id="project-overview" align="center">
-
-🔍 Project Overview
-
-</h1>
-
-<p>
-MicroForge is a professional microservices template including:
-</p>
-
-<ul>
-  <li><strong>Infrastructure as Code</strong>: Terraform manages PostgreSQL RDS, AWS Secrets Manager, and Kubernetes resources.</li>
-  <li><strong>Kubernetes Deployments</strong>: Deployments, Services, Namespaces, ServiceAccounts, OIDC/IAM roles (IRSA).</li>
-  <li><strong>CI/CD</strong>: GitHub Actions workflows for automated testing, linting, building Docker images, and optional deployment to AWS.</li>
-  <li><strong>Security</strong>: Environment-specific secrets, AWS Secrets Manager integration, and secure password hashing.</li>
-  <li><strong>Observability</strong>: Prometheus metrics, Loki JSON logs, Grafana dashboards ready for use.</li>
-  <li><strong>Microservices</strong>: <code>auth_service</code> with full authentication flow, and <code>users-api</code> as a minimal, reusable scaffold service.</li>
-</ul>
-
-<hr/>
-
-<h1 id="architecture" align="center">
-
-🏗️ Architecture
-
-</h1>
+1. Client → requests `/check-password` with Bearer token.
+2. `password_checker_service` validates the token via `auth_service` (`/users/me`).
+3. If the token is valid, queries **HIBP** using k-Anonymity (sends only first 5 chars of SHA-1).
+4. Responds `{ leaked: bool, times: int }`.
+5. Metrics and logs exported to Prometheus/Loki; dashboards in Grafana.
 
 <p align="center">
-  <img src="docs/diagrams/diagrams-svg-files/ProjectArchitecture.svg" width="600" alt="Project Architecture"/>
+  <img src="docs/diagrams/diagrams-svg-files/password-checker-architecture.svg" width="600" alt="Project Architecture"/>
 </p>
+---
 
-<hr/>
+## 📂 Repository Structure
 
-<h1 id="folder-structure" align="center">
+```
+leakguard/
+├─ auth_service/
+│  ├─ src/                # auth service code
+│  ├─ requirements.txt
+├─ password_checker_service/
+│  ├─ src_pcs/            # app.py, checker logic
+│  ├─ requirements.txt
+|  ├─ tests/
+│  ├─ test_auth.py
+│  └─ test_password_checker.py
+└─ .github/
+   └─ workflows/
+      └─ tests.yaml       # CI workflow (tests, lint)
+```
 
-📂 Project Structure
+---
 
-</h1>
+## ⚡ Quick Start (local / demo)
 
-<h2 id="project-overview-diagram" align="center">
+### Requirements
+- Docker & Docker Compose (recommended)
+- Python 3.11+
+- (Optional) `uvicorn` to run services individually
 
-1️⃣ Project Overview
-
-</h2>
-
-<p align="center"><img src="docs/diagrams/diagrams-svg-files/Project-Overview.svg" width="600" alt="Project Overview"/></p>
-
-<h2 id="repo-workflows" align="center">
-
-2️⃣ Repository Workflows
-
-</h2>
-
-<p align="center"><img src="docs/diagrams/diagrams-svg-files/repository-workflows.svg" width="400" alt="Workflows"/></p>
-
-<h2 id="auth-service-diagram" align="center">
-
-3️⃣ Auth Service
-
-</h2>
-
-<p align="center"><img src="docs/diagrams/diagrams-svg-files/auth-service.svg" width="600" alt="Auth Service"/></p>
-
-<h2 id="monitoring-diagram" align="center">
-
-4️⃣ Monitoring
-
-</h2>
-
-<p align="center"><img src="docs/diagrams/diagrams-svg-files/monitoring.svg" width="600" alt="Monitoring"/></p>
-
-<h2 id="terraform-diagram" align="center">
-
-5️⃣ Terraform
-
-</h2>
-
-<p align="center"><img src="docs/diagrams/diagrams-svg-files/terraform.svg" width="600" alt="Terraform"/></p>
-
-<h2 id="demo-service-diagram" align="center">
-
-6️⃣ Template / Demo Service
-
-</h2>
-
-<p align="center"><img src="docs/diagrams/diagrams-svg-files/demo-service.svg" width="600" alt="Demo Service"/></p>
-
-<hr/>
-
-<h1 id="ci-cd-pipeline" align="center">
-
-🔄 CI/CD Pipeline
-
-</h1>
-
-<p align="center">
-  <img src="docs/diagrams/diagrams-svg-files/PipelineCI-CD.svg" width="600" alt="CI/CD Pipeline"/>
-</p>
-
-<p><strong>Workflow summary</strong>:</p>
-<ol>
-  <li><code>lint</code> → static checks (ruff / mypy / black)</li>
-  <li><code>test</code> → unit + integration tests (<code>pytest</code>)</li>
-  <li><code>build</code> → Docker image build & tag</li>
-  <li><code>publish</code> → push image to registry (optional)</li>
-  <li><code>deploy</code> → manual/automated deployment to staging/production</li>
-</ol>
-
-<hr/>
-
-<h1 id="microservices" align="center">📦 Microservices</h1>
-
-<ul>
-  <li><strong>Auth Service (<code>auth_service</code>)</strong> — Full authentication flow: registration, email verification, JWT login/refresh, password hashing, user management.</li>
-  <li><strong>Users API (<code>users-api</code>)</strong> — Minimal scaffold service: health endpoint, basic CRUD layout, designed to be copied & extended.</li>
-</ul>
-
-<hr/>
-
-<h1 id="observability" align="center">🛰️ Observability</h1>
-
-<ul>
-  <li><strong>Prometheus</strong> — instrumented FastAPI metrics via <code>prometheus_fastapi_instrumentator</code>.</li>
-  <li><strong>Grafana</strong> — dashboards (latency, throughput, errors) provided as JSON; ready to be provisioned via Helm.</li>
-  <li><strong>Loki</strong> — structured JSON logs using <code>loguru</code> for advanced log queries.</li>
-</ul>
-
-<hr/>
-
-<h1 id="roadmap" align="center">
-📍 Roadmap
-</h1>
-
-<p align="center"><img src="docs/diagrams/diagrams-svg-files/roadmap.svg" width="600" alt="Roadmap"/></p>
-
-<p><strong>Planned near-term improvements:</strong></p>
-<ul>
-  <li>Future releases will pin versions; 1.0 is stable. streamline Helm charts for demo deploys</li>
-  <li>Add OAuth2 / social login options</li>
-  <li>Add alerting rules for Prometheus + Grafana alertmanager</li>
-  <li>Harden Terraform modules; add automated IaC tests</li>
-</ul>
-
-<hr/>
-
-<h1 id="quick-start" align="center">⚡ Quick Start</h1>
-
-<h2 id="prerequisites" align="center">Pre-requisites</h2>
-
-<ul>
-  <li>Docker & Docker Compose (for local/demo)</li>
-  <li>Python 3.11+</li>
-  <li>PostgreSQL (local or managed) — or use the provided Docker image</li>
-  <li><code>kubectl</code>, <code>helm</code> (if testing Kubernetes/Helm flows)</li>
-  <li>(Optional) AWS CLI + credentials for Terraform / real deployments</li>
-</ul>
-
-<h2 id="service-local" align="center">Local dev (service-level)</h2>
+### 1) Clone and run demo with Docker Compose
 
 ```bash
-git clone https://github.com/MetalCloud1/MicroForge.git
-cd MicroForge/auth_service
+git clone https://github.com/MetalCloud1/leakguard.git
+cd leakguard
+# Apply all namespaces
+kubectl apply -f auth_service/infra/k8s/dev/namespace-dev/
+kubectl apply -f monitoring-namespace.yaml
+```
+
+This starts: `auth_service`, `password_checker_service`, Postgres (optional for auth), Prometheus, Loki, and Grafana.
+
+### 2) Run only `password_checker_service` locally
+
+```bash
+cd password_checker_service
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt -r requirements-test.txt
-
-export POSTGRES_USER=authuser
-export POSTGRES_PASSWORD=authpass
-export POSTGRES_DB=authdb
-export POSTGRES_HOST=localhost
-export SECRET_KEY=dev_secret
-export SENDER_EMAIL=<your_email>
-export SENDER_PASSWORD=<your_email_password>
-
-uvicorn src.main:app --reload --port 8000
+uvicorn src_pcs.app:app --reload --port 8001
 ```
 
-Test endpoints using curl or Postman: `/register`, `/verify-email`, `/token`, `/users/me`.
+Useful endpoints:
 
-<hr/>
+- `GET  http://localhost:8001/health`  
+- `POST http://localhost:8001/check-password`  
 
-<h1 id="run-everything-localdemo" align="center">🏃 Run everything (local / demo)</h1>
-
-<p>Two recommended ways to bring the stack up quickly for demo/testing:</p>
-
-<h2 id="docker-compose-demo" align="center">
-1) Docker Compose (quick demo)
-</h2>
-
-<p>Use the included demo compose to run core services locally (Postgres, auth_service, users-api, Prometheus, Loki, Grafana):</p>
+`curl` example (requires valid token from `auth_service`):
 
 ```bash
-docker-compose -f docker/docker-compose.demo.yml up --build -d
+curl -sS -X POST http://localhost:8001/check-password \
+  -H "Authorization: Bearer <YOUR_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{"password":"123456"}'
 ```
 
-<p><em>Notes:</em></p> <ul> <li><code>docker/docker-compose.demo.yml</code> is opinionated for local demos and uses ephemeral storage.</li> <li>Use <code>.env.example</code> as a template for environment variables; copy to <code>.env</code> and edit before running.</li> </ul> 
+Example response:
 
-<h2 id="k8s-helm-demo" align="center">2) Kubernetes / Helm (more realistic)</h2>
-
- <p>Use Helm to deploy a more production-like environment with monitoring and services:</p>
-
-```bash
-helm repo add grafana https://grafana.github.io/helm-charts
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm repo update
-
-helm upgrade --install loki-stack grafana/loki-stack -n monitoring -f monitoring/values.yaml --create-namespace
-
-helm upgrade --install prom-stack prometheus-community/kube-prometheus-stack -n monitoring -f monitoring/prometheus-values.yaml
+```json
+{
+  "leaked": true,
+  "times": 1000000
+}
 ```
 
-<p>Use the extracted <code>values.yaml</code> files in the <code>monitoring/</code> directory for consistency with your current deployment.</p> <hr/> 
+---
 
-<h1 
-id="testing--ci-details" align="center">
+## 🧩 Configuration (environment variables)
 
-🧪 Testing & CI details
+Service configurable via 12-factor environment variables:
 
-</h1> 
+- `AUTH_SERVICE_URL` — URL of authentication microservice (default `http://auth-service`).
+- `USE_HIBP` — `"true"` / `"false"`. If `false`, service responds with fallback (useful for tests).
+- `HIBP_TIMEOUT` — Timeout (seconds) for HIBP requests (default `5`).
+- `LOG_LEVEL` — Logging level (`INFO`, `DEBUG`, `WARNING`).
+- Standard Docker/Kubernetes vars (service names, networking).
 
-<h2 id="run-tests" align="center">
+**Note:** HIBP `range` endpoint requires no API key; other endpoints (e.g., `breachedaccount`) do, use `.env` or GitHub Secrets.
 
-Run tests locally
+### Example `.env` (local)
 
-</h2>
+```
+AUTH_SERVICE_URL=http://localhost:8000
+USE_HIBP=true
+HIBP_TIMEOUT=5
+LOG_LEVEL=INFO
+```
+
+---
+
+## ✅ Secure design: k-Anonymity
+
+- Service calculates SHA-1 of password locally.
+- Sends only the first 5 characters (`prefix`) to `https://api.pwnedpasswords.com/range/{prefix}`.
+- Receives list of suffixes and occurrences; compares suffix locally.
+- Never sends full password or hash externally.
+
+---
+
+## 🧪 Tests & best practices for CI
+
+Tests in `tests/test_password_checker.py` cover:
+
+- `/health` endpoint (smoke test)
+- `/check-password` with valid token (mocking `decode_token_return_username` and `check_password_hibp`)
+- `/check-password` with invalid token (mocking `decode_token_return_username`)
+- Fallback (`USE_HIBP=false`) — ensures env variable is read dynamically
+
+### Run tests locally
 
 ```bash
 pytest -q
-
-pytest --cov=src --cov-report=term-missing
 ```
-<h2 id="linting" align="center">
-Linting / static checks
-</h2>
+
+### Coverage and linters
 
 ```bash
+# Coverage
+pytest --cov=src --cov-report=term-missing
+
+# Lint / static analysis
 ruff check .
 black --check .
 mypy src
 ```
 
-<h2 id="ci-workflow" align="center">CI pipeline (GitHub Actions)
-</h2> 
+### Recommended mocking in tests
+- `decode_token_return_username` → avoids calling auth service.
+- `check_password_hibp` → avoids real HIBP requests in CI.
+- Avoid manipulating global vars at import time; read `USE_HIBP` per request or patch module var in tests.
 
-<p>The repo includes a GitHub Actions workflow that runs on PRs and pushes to <code>dev</code>/<code>main</code>. Flow:</p> <ul> <li><code>on: pull_request</code> → run lint + tests</li> <li><code>on: push: branches: [dev]</code> → build docker images, run integration tests</li> <li>Manual promotion → tag release & deploy</li> </ul> <hr/> 
+---
 
-<h1 id="contributing--license" align="center">
+## 🛠️ Implementation examples
 
-🤝 Contributing & License
+### Dynamic `USE_HIBP` reading
 
-</h1> 
+```python
+use_hibp = os.environ.get("USE_HIBP", "true").lower() == "true"
+if use_hibp:
+    times = check_password_hibp(request.password)
+else:
+    times = 0
+```
 
-<h2 id="contributing" align="center">
+### Mocking with pytest
 
-Contributing (short)
+```python
+@patch("password_checker_service.src_pcs.app.check_password_hibp")
+@patch("password_checker_service.src_pcs.app.decode_token_return_username")
+def test_check_password_with_hibp(mock_decode, mock_hibp):
+    mock_decode.return_value = "testuser"
+    mock_hibp.return_value = 1234
+    # ... call endpoint and assertions ...
+```
 
-</h2> 
+---
 
-<p>This template is intended for learning, inspiration, and building new projects. If you'd like to contribute improvements:</p> <ul> <li>Open an issue describing the change / improvement.</li> <li>Send a PR against the <code>dev</code> branch.</li> <li>Respect the license: contact the author before public redistribution or claiming work as your own.</li> </ul> 
+## 🛰️ Observability & monitoring
 
-<h2 id="license" align="center">License (short)</h2> 
+- **Prometheus**: FastAPI metrics — latency, request count, errors
+- **Loki**: structured JSON logs for searching and correlation
+- **Grafana**: preconfigured dashboards:
+  - `API latency (p50/p95/p99)`
+  - `Requests per second`
+  - `Error rate (4xx vs 5xx)`
+  - `Auth failures` (invalid token count)
 
-<p>This project is a <strong>template created by Gilbert Ramírez</strong> (GitHub: <a href="https://github.com/MetalCloud1">
-https://github.com/MetalCloud1</a>).
+Scraping configuration in `docker-compose.demo.yml` and `prometheus/prometheus.yml`.
 
-</p> <p><strong>License:</strong> CC BY-NC-ND (custom) — full terms in <code>LICENSE.md</code>.
+---
 
-</p> <p><strong>You may:</strong></p> 
+## 🔐 Security & legal notes
 
-<ul> <li>View, study, and use this template for personal, educational, or inspiration purposes.</li> 
+- **Do not store passwords in plaintext** or user dumps in the repo.
+- HIBP used in read-only k-Anonymity mode — recommended way to check passwords.
+- Real account features (notifications, locks) require **explicit consent** and compliance (GDPR/LPD).
+- Use `GitHub Secrets` for sensitive CI/CD variables; do not commit `.env`.
 
-<li>Modify or extend it; substantial transformations that add new functionality may be used as your own work <strong>if you properly acknowledge the original template</strong>.</li> 
+---
 
-</ul> <p><strong>You may NOT:
+## 🚀 Production deployment suggestions
 
-</strong></p> <ul> <li>Claim the original template as entirely your own in resumes/portfolios without prior notice to the author.</li> <li>Sell, redistribute, or deploy the original template commercially without consent.</li> </ul> <p>
+1. Containerize service (`Dockerfile`) and use `docker-compose` for staging.
+2. Deploy on Render, Railway, AWS ECS/Fargate, Google Cloud Run, or Kubernetes (EKS/GKE).
+3. Configure readiness/liveness probes and resource limits.
+4. Enable TLS/HTTPS and WAF if public.
+5. Set alerts in Grafana/Prometheus for high errors or request spikes.
 
-<strong>Author:</strong> Gilbert Ramírez (<a href="https://github.com/MetalCloud1">GitHub</a>)</p> <hr/> 
+---
 
-<h1 id="pre-publish-checklist" align="center">
+## 🤝 Contribution & style guide
 
-✅ Pre-publish checklist</h1> 
+- Open an issue for proposed changes or bugs
+- Submit PRs to `dev` branch
+- Follow conventions:
+  - `black` for formatting
+  - `ruff` for linting
+  - `mypy` for static typing
+  - Tests using `pytest` and mocks as needed
+- Maintain MicroForge attribution when using template
 
-<ul> <li>[ ] README finalized and screenshots/diagrams included</li> 
+---
 
-<li>[ ] LICENSE.md present</li> 
+## 📄 License
 
-<li>[ ] <code>.gitignore</code> reviewed for secrets / private keys</li> 
+Based on **MicroForge** template by Gilbert Ramírez (`MetalCloud1`).  
+**License:** CC BY-NC-ND (see `LICENSE.md`).
 
-<li>[ ] Local secrets removed</li>
+---
 
- <li>[ ] Commits author/email consistent (<code>MetalCloud1</code> / <code>gilbertoismael5555@gmail.com</code>)</li>
+## 📝 Final Notes (portfolio ready)
 
-  <li>[ ] Branch protection: protect <code>main</code>, require PR reviews, CI checks</li> 
-
-  <li>[ ] Optional: <code>CONTRIBUTING.md</code>, <code>CODE_OF_CONDUCT.md</code>, <code>SECURITY.md</code>
-  </li> </ul> <hr/> 
-
-
-  <h1 id="notes" align="center">
-
-  📝 Notes
-
-  </h1> <ul> 
-
-  <li>Focus: robust template for microservices, infrastructure, observability.</li> 
-
-  <li>Docker Compose demo is ephemeral; use Kubernetes & Helm for realistic deployments.</li> 
-
-  <li>Consider enabling GitHub Template to signal reusability.</li> </ul> 
+- Shows **real API integration**, secure handling of sensitive data, and minimal observable infrastructure for production.
+- README highlights:
+  - Architecture (microservices + observability)
+  - Deterministic testing and CI mocking
+  - k-Anonymity — responsible data handling
+- Optionally, provide:
+  - `docker-compose.prod.yml` with TLS and production config
+  - One-page portfolio/LinkedIn README

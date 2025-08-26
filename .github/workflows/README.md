@@ -1,119 +1,70 @@
-<h1 align="center">
- <b>CI/CD Pipeline - MicroForge🗡️</b>
-</h1>
+# CI Pipeline
 
-This workflow provides automated **Continuous Integration (CI) and Continuous Deployment (CD)** for the MicroForge template, covering the core microservices: `auth_service` and `users-api`. It is designed to ensure that any changes pushed to `dev` or pull requests targeting `main` or `dev` are automatically tested, linted, and optionally deployed to AWS with Docker images and Terraform-managed infrastructure.<br><br>
+[![CI](https://github.com/MetalCloud1/microservices-workflow/actions/workflows/ci.yaml/badge.svg)](https://github.com/MetalCloud1/microservices-workflow/actions/workflows/ci-cd-dev.yaml)  
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](https://www.docker.com/)  
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-Ready-blue?logo=kubernetes)](https://kubernetes.io/)  
+[![License: CC BY-NC-ND](https://img.shields.io/badge/License-CC--BY--NC--ND-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
 
-> 💡 **Note:** This workflow is modular and configurable. It can be extended to additional services or environments without breaking the existing pipeline.
+## Overview
 
-<h2 id="table-of-content" align="center">
-📋Table Of Content
-</h2>
-<div style="font-size:20px;">
-<ol>
+This repository contains a **CI pipeline** for multiple Python microservices:
 
-1. [Workflow Triggers](#workflow-triggers)
+- `auth_service`
+- `users-api`
+- `password_checker_service`
 
-2. [Environment Variables](#environment-variables)
+* **The workflow automatically runs on:**
 
-3. [CI Job](#ci-job)
+- Push to `dev`, `main`, or `leakchecker` branches
+- Pull requests to `dev` or `main`
+- Manual trigger via `workflow_dispatch`
 
-4. [CD Job](#cd-job)
+* **The CI pipeline includes:**
 
-5. [Usage and Adaptation](#usage-and-adaptation)
+1. Checking out the repository
+2. Setting up Python 3.11
+3. Installing dependencies for all services
+4. Linting all services with Flake8
+5. Starting a PostgreSQL service for testing
+6. Running all tests with `pytest`
+7. Listing all test files
+8. Building Docker images locally
 
-</ol>
-</div>
+## Usage
 
-<h2 id="workflow-triggers" align="center">
-▶️Workflow Triggers
-</h2>
-
-This workflow runs on:
-* `push` events to the `dev` branch (CI)
-* `pull_request` events targeting `dev` or `main` (CI)
-* Manual triggers via `workflow_dispatch` (CD deployment)
-
-> 💡 **Technical Note**: CI and CD are separated. CI runs automatically to validate code quality and test coverage. CD is manual to prevent automatic deployment to production without approval.
-
-<h2 id="environment-variables" align="center">
-🛠️Environment Variables
-</h2>
+To run the workflow locally:
 
 ```bash
-env:
-  AWS_REGION: us-west-2
+# Build Docker images for all services
+services=("auth_service" "users-api" "password_checker_service")
+for service in "${services[@]}"; do
+  docker build -t gilbr/$service:latest $service/
+done
+```
+## Badges
+
+* CI Status: Shows the current status of the GitHub Actions workflow.
+
+  * Python Version: Indicates the Python version used.
+
+  * Docker: Confirms Docker setup for local builds.
+
+  * License: Repository license.
+
+## Notes
+
+  * The PostgreSQL service is configured with:
+
+```ini
+POSTGRES_USER=testuser
+POSTGRES_PASSWORD=testpass
+POSTGRES_DB=testdb
 ```
 
-* `AWS_REGION`: Default AWS region for deployments.
+## Database URL for tests:
 
+```ini
+postgresql+asyncpg://testuser:testpass@localhost:5432/testdb
+```
 
-* Additional secrets are loaded during CD using GitHub Secrets:
-
-  * `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`
-
-  * `DOCKER_USERNAME`, `DOCKER_PASSWORD`
-
-* Database connection string and other service-specific configuration are injected via   environment variables for flexibility.
-
-<h2 id="ci-job" align="center">
-🧪CI Job
-</h2>
-
-**Purpose:** Test and validate code before merging to main branches.
-
-**Key Steps:**
-
-1. Checkout repository using `actions/checkout@v3`.
-
-2. Setup Python 3.11 environment.
-
-3. Install dependencies for all services.
-
-4. Run linter (`flake8`) on all source code.
-
-5. Launch temporary PostgreSQL container for tests.
-
-6. Wait until PostgreSQL is ready.
-
-7. Run unit tests with `pytest` and list test files for logging.
-
-8. Build Docker images locally for all services (`auth_service` and `users-api`).
-
-
-<h2 id="cd-job" align="center">
-☁️CD Job
-</h2>
-
-**Purpose:** Deploy tested services to AWS and update Docker images in the registry. Triggered manually.
-
-**Key Steps:**
-
-1. Checkout repository.
-
-2. Configure AWS credentials using `aws-actions/configure-aws-credentials@v2`.
-
-3. Authenticate with Docker Hub (`docker/login-action@v2`).
-
-4. Build and push Docker images for all services.
-
-5. Navigate to Terraform configuration and run `terraform init` and `terraform apply`.
-
-<h2 id="usage-and-adaptation" align="center">
-🌍 Usage and Adaptation
-</h2>
-
-* Adding new microservices: Add them to the `services` array in both CI and CD steps. Ensure dependencies and test scripts exist.
-
-* Switching databases or environments: Adjust `DATABASE_URL` or other service-specific environment variables.
-
-* Secrets management: Always use GitHub Secrets for sensitive information. Avoid hardcoding credentials or keys in YAML.
-
-* Image tagging: Replace `latest` with versioned tags for reproducible deployments.
-
-## License
-
-This project is licensed under **CC BY-NC-ND (custom)**.  
-See [LICENSE.md](../../LICENSE.md) for full details.
-
-> ⚠️ Please respect the author's attribution and license when using this template.
+Flake8 and pytest are used to maintain code quality and run unit tests.
