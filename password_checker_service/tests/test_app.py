@@ -47,10 +47,12 @@ def test_check_password_invalid_token(mock_decode):
     assert response.json()["detail"] == "Invalid or expired token"
 
 
+from unittest.mock import patch
+
 @patch("password_checker_service.src_pcs.app.decode_token_return_username")
+@patch("password_checker_service.src_pcs.app.USE_HIBP", new=False)
 def test_check_password_fallback_local(mock_decode):
     mock_decode.return_value = "testuser"
-    os.environ["USE_HIBP"] = "false"
 
     data = {"password": "123456"}
     response = client.post(
@@ -63,5 +65,3 @@ def test_check_password_fallback_local(mock_decode):
     json_resp = response.json()
     assert json_resp["leaked"] is False
     assert json_resp["times"] == 0
-
-    os.environ["USE_HIBP"] = "true"
