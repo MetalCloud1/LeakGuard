@@ -14,7 +14,6 @@
 **Version 1.0 — demo release**  
 ❗ Demo ready for testing. Production deployment optional and configurable.
 
----
 
 ## 🔍 Project Overview
 
