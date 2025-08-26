@@ -45,7 +45,7 @@ spec:
             - name: POSTGRES_HOST
               value: postgres-service
             - name: SENDER_EMAIL
-              value: devtest@example.com       # Para pruebas locales
+              value: devtest@example.com       
             - name: SENDER_PASSWORD
               value: devpassword  
           readinessProbe:
