@@ -3,7 +3,13 @@
 
 *Quickly detect if your information (passwords, emails, etc.) has been compromised before it's too late.*
 
-![Python](https://img.shields.io/badge/python-3.11+-blue) ![Docker](https://img.shields.io/badge/docker-ready-blue) ![Status](https://img.shields.io/badge/status-demo-orange) ![Template](https://img.shields.io/badge/template--based--on-MicroForge-green)
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.11%2B-3776AB?style=for-the-badge&logo=python&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Status-Demo-FFA500?style=for-the-badge&logo=githubactions&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Template-MicroForge-2ecc71?style=for-the-badge&logo=github&logoColor=white"/>
+</p>
+
 
 **Version 1.0 — demo release**  
 ❗ Demo ready for testing. Production deployment optional and configurable.
@@ -54,7 +60,7 @@ leakguard/
 │  └─ test_password_checker.py
 └─ .github/
    └─ workflows/
-      └─ tests.yaml       # CI workflow (tests, lint)
+      └─ ci-cd-dev.yaml       # CI workflow (tests, lint)
 ```
 
 ---
@@ -193,11 +199,11 @@ else:
 ### Mocking with pytest
 
 ```python
-@patch("password_checker_service.src_pcs.app.check_password_hibp")
 @patch("password_checker_service.src_pcs.app.decode_token_return_username")
-def test_check_password_with_hibp(mock_decode, mock_hibp):
+@patch("password_checker_service.src_pcs.app.check_password_hibp")
+def test_check_password_with_hibp(mock_hibp, mock_decode):
     mock_decode.return_value = "testuser"
-    mock_hibp.return_value = 1234
+    mock_hibp.return_value = 1000000
     # ... call endpoint and assertions ...
 ```
 
