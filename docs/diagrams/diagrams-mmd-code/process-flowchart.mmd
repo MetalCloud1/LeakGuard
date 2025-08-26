@@ -1,0 +1,18 @@
+---
+config:
+  layout: elk
+  theme: neo
+---
+flowchart TD
+    Client["👤 User / Client"] -- POST /register credentials --> AuthService["🔑 Auth Service Pod"]
+    AuthService -- INSERT user data --> AuthDB["🗄️ PostgreSQL Auth DB Pod"]
+    AuthDB -- ACK / User stored --> AuthService
+    AuthService -- Return JWT token --> Client
+    Client -- "POST /check-password password, token" --> PasswordChecker["🔒 Password Checker Service Pod"]
+    PasswordChecker -- Validate token with Auth Service --> AuthService
+    AuthService -- Query user & token validation --> AuthDB
+    AuthDB -- Return user data / token status --> AuthService
+    AuthService -- Return validation result --> PasswordChecker
+    PasswordChecker -- Optional: Check password in HIBP API --> HIBP["🌐 HaveIBeenPwned API"]
+    HIBP -- Return leak count --> PasswordChecker
+    PasswordChecker -- Return leaked status & times --> Client
