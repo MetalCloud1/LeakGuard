@@ -26,7 +26,7 @@ Microservice for verifying if a password has appeared in known data breaches usi
 </h1>
 
 <p align="center">
-  <img src="../docs/diagrams/diagrams-svg-files/process-flowchart.svg" width="1000" alt="Project Architecture"/>
+  <img src="../docs/diagrams/diagrams-svg-files/process-flowchart.svg" width="900" alt="Project Architecture"/>
 </p>
 
 <h1 align="center"> 
