@@ -3,7 +3,6 @@
 
 *Quickly detect if your information (passwords, emails, etc.) has been compromised before it's too late.*
 
-[![Tests](https://github.com/MetalCloud1/leakguard/actions/workflows/tests.yaml/badge.svg)](https://github.com/MetalCloud1/leakguard/actions/workflows/tests.yaml)  
 ![Python](https://img.shields.io/badge/python-3.11+-blue) ![Docker](https://img.shields.io/badge/docker-ready-blue) ![Status](https://img.shields.io/badge/status-demo-orange) ![Template](https://img.shields.io/badge/template--based--on-MicroForge-green)
 
 **Version 1.0 — demo release**  

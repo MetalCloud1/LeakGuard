@@ -1,8 +1,7 @@
-# CI Pipeline
+<h1 align ="center">CI Pipeline</h1>
 
-[![CI](https://github.com/MetalCloud1/microservices-workflow/actions/workflows/ci.yaml/badge.svg)](https://github.com/MetalCloud1/microservices-workflow/actions/workflows/ci-cd-dev.yaml)  
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](https://www.docker.com/)  
-[![Kubernetes](https://img.shields.io/badge/Kubernetes-Ready-blue?logo=kubernetes)](https://kubernetes.io/)  
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](https://www.docker.com/)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-Ready-blue?logo=kubernetes)](https://kubernetes.io/)
 [![License: CC BY-NC-ND](https://img.shields.io/badge/License-CC--BY--NC--ND-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
 
 ## Overview
