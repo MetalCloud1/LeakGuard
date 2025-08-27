@@ -6,6 +6,7 @@ on:
       - dev
       - main
       - leakchecker
+      - squash-test
   pull_request:
     branches:
       - main

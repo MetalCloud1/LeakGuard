@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  namespace: auth-dev
+type: Opaque
+data:
+  password: <base64-password>
