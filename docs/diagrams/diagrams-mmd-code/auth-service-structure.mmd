@@ -1,32 +1,30 @@
 ---
 config:
   theme: neo-dark
-  layout: dagre
+  layout: elk
 ---
 flowchart TD
  subgraph Alembic["Migrations (Alembic)"]
         versions["Versions"]
         env_template["env-template.py"]
-        readme_alembic["README"]
   end
- subgraph IAM["IAM Policies"]
-        policies["Policies"]
-        trust["Trust Policies"]
+ subgraph k8s_dev["dev-k8s"]
+        deploy(["deployment.yaml"])
+        service(["service.yaml"])
+        serviceAcc(["serviceAccount.yaml"])
+        namespace(["namespace-dev.yaml"])
+  end
+ subgraph db_dev["dev-database"]
+        secret(["secret.yaml.template"])
+        servicedb(["service.yaml"])
+        statefulSet(["statefulSet.yaml"])
   end
  subgraph K8sDev["Kubernetes (Dev)"]
-        deploy_dev["Deployment"]
-        svc_dev["Service"]
-        db_dev["Dev Database"]
-  end
- subgraph K8sProd["Kubernetes (Prod Templates)"]
-        deploy_prod["Deployment Template"]
-        svc_prod["Service Template"]
-        db_prod["Prod Database"]
+        k8s_dev
+        db_dev
   end
  subgraph Infra["Infrastructure"]
-        IAM
         K8sDev
-        K8sProd
   end
  subgraph Source["Source Code"]
         main["main.py"]
@@ -47,4 +45,4 @@ flowchart TD
         Tests
   end
     Source --> Alembic & Infra & Tests
-    Infra --> IAM & K8sDev & K8sProd
+    Infra --> K8sDev

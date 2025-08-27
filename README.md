@@ -46,21 +46,10 @@ Main components:
 
 ## 📂 Repository Structure
 
-```
-leakguard/
-├─ auth_service/
-│  ├─ src/                # auth service code
-│  ├─ requirements.txt
-├─ password_checker_service/
-│  ├─ src_pcs/            # app.py, checker logic
-│  ├─ requirements.txt
-|  ├─ tests/
-│  ├─ test_auth.py
-│  └─ test_password_checker.py
-└─ .github/
-   └─ workflows/
-      └─ ci-cd-dev.yaml       # CI workflow (tests, lint)
-```
+<p align="center">
+  <img src="docs/diagrams/diagrams-svg-files/password-checker-architecture.svg" width="600" alt="password_checker_service_files"/>
+</p>
+
 
 ---
 
@@ -203,7 +192,6 @@ else:
 def test_check_password_with_hibp(mock_hibp, mock_decode):
     mock_decode.return_value = "testuser"
     mock_hibp.return_value = 1000000
-    # ... call endpoint and assertions ...
 ```
 
 ---
@@ -258,16 +246,3 @@ Scraping configuration in `docker-compose.demo.yml` and `prometheus/prometheus.y
 
 Based on **MicroForge** template by Gilbert Ramírez (`MetalCloud1`).  
 **License:** CC BY-NC-ND (see `LICENSE.md`).
-
----
-
-## 📝 Final Notes (portfolio ready)
-
-- Shows **real API integration**, secure handling of sensitive data, and minimal observable infrastructure for production.
-- README highlights:
-  - Architecture (microservices + observability)
-  - Deterministic testing and CI mocking
-  - k-Anonymity — responsible data handling
-- Optionally, provide:
-  - `docker-compose.prod.yml` with TLS and production config
-  - One-page portfolio/LinkedIn README

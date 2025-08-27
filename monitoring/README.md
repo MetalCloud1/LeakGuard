@@ -96,7 +96,7 @@ Prometheus RBAC & ServiceMonitor (summary)
 
 `prometheus-rbac.yaml` (ClusterRole + ClusterRoleBinding) grants Prometheus the required permissions to list/watch pods/services/endpoints and read ServiceMonitor resources in the cluster. The `roleRef` binds to the Prometheus service account `prometheus-kube-prometheus-prometheus` in the `monitoring` namespace (adjust if your operator uses a different account/namespace).
 
-`service-monitor.yaml` configures a `ServiceMonitor` to scrape endpoints that match `app=auth-service` across `auth-dev` and `auth-prod` namespaces. It scrapes the `metrics` port at path `/metrics` every 20s.
+`service-monitor.yaml` configures a `ServiceMonitor` to scrape endpoints that match `app=auth-service` across `auth-dev` namespace. It scrapes the `metrics` port at path `/metrics` every 20s.
 
 > **Important:** `ServiceMonitor` resources are honored only if you run the Prometheus Operator / kube-prometheus stack.
 
@@ -152,9 +152,6 @@ Customization & recommendations
  **Prometheus:**
  
 </h3>
-
-
-* `ServiceMonitor.namespaceSelector.matchNames` is helpful to include only the namespaces you want; you already list `auth-dev` and `auth-prod`.
 
 * If you have multiple Prometheus instances, ensure `release:` labels match the right Prometheus in your cluster.
 
@@ -256,26 +253,6 @@ Scaling & production notes
 * **Grafana:** run with replicas behind an ingress and load balancer; enable persistence for dashboards.
 
 * **Prometheus:** run with Thanos or Cortex for long-term storage & horizontal scaling if needed.
-
-<h2 align = "center">
-Example: Add another service to log scraping
-</h2>
-
-* To collect logs from another service (e.g., `users-api`), add a `scrape_config` in Promtail values similar to auth-service but matching `app: users-api`. Or label pods accordingly and reuse the `kubernetes-pods` job with proper relabel rules.
-
-<h2 align ="center">
-Final checklist before production
-</h2>
-
-* [ ] Move secrets out of plain `values.yaml` into Kubernetes Secrets.
-
- * [ ] Secure Grafana (TLS / auth).
-
- * [ ] Tune Loki retention, index and chunk settings.
- 
- * [ ] Validate Prometheus target discovery in Prometheus UI.
-
- * [ ] Create Grafana dashboards and export them as JSON for repo-managed dashboards.
 
  ## License
  

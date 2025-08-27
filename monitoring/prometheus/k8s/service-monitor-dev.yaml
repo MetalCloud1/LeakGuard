@@ -12,7 +12,6 @@ spec:
   namespaceSelector:
     matchNames:
     - auth-dev
-    - auth-prod
   endpoints:
   - port: metrics
     path: /metrics

@@ -1,6 +1,6 @@
 # 🛠 Support & Contact
 
-Thank you for using **MicroForge**! If you encounter issues, have questions, or want to reach out, here’s how:
+Thank you for using **LeakGuard**! If you encounter issues, have questions, or want to reach out, here’s how:
 
 ---
 
@@ -39,4 +39,4 @@ You can reach me here:
 
 ---
 
-Thank you for helping make **MicroForge** better! Your feedback, questions, and contributions are always welcome. 🚀
+Thank you for helping make **LeakGuard** better! Your feedback, questions, and contributions are always welcome. 🚀
